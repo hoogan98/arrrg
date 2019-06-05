@@ -232,7 +232,8 @@ while ($End -eq 0){
 	$Defense = $p2Health
 	
 	if ($Turn -eq 0) {
-		echo "$Name1's turn"
+        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+		echo ("{0,37}'s turn" -f $Name1)
 		Start-Sleep -Seconds 1
 		DamageReport
 
@@ -240,7 +241,8 @@ while ($End -eq 0){
 		$Offense = $p1Health
 		$Defense = $p2Health
 	} elseif ($Turn -eq 1) {
-		echo "$Name2's turn"
+        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+		echo ("{0,37}'s turn" -f $Name2)
 		Start-Sleep -Seconds 1
 		DamageReport
 		
