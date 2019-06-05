@@ -16,8 +16,8 @@
 #defensive musket attack that does damage if the enemy decides to board on the next turn
 
 #mvp add
-# on board: offense loses 10% of defense, defense loses 15% of offense
-# on ship-side battle: vice versa of above
+# move crew
+# retreat boarders
 
 #set up names / meta stuff
 $End = 0;
@@ -159,12 +159,8 @@ function skirmish($p1, $p2) {
 #calculate damage from grapeshot given a specific zone
 #dmg is returned in an array[crew,cannon,hull]
 function dmgGrape($o, $z) {
-	$offense = $p1Health
+	$offense = $o
 	$dmg = 0,0,0
-	
-	if ($o -eq 1) {
-		$offense = $p2Health
-	}
 	
 	$count = fireCount $offense $z
 	#dmg to crew
@@ -178,12 +174,8 @@ function dmgGrape($o, $z) {
 }
 
 function dmgRound($o, $z) {
-	$offense = $p1Health
+	$offense = $o
 	$dmg = 0,0,0
-	
-	if ($o -eq 1) {
-		$offense = $p2Health
-	}
 	
 	$count = fireCount $offense $z
 	#dmg to crew
@@ -197,12 +189,8 @@ function dmgRound($o, $z) {
 }
 
 function dmgChain($o, $z) {
-	$offense = $p1Health
+	$offense = $o
 	$dmg = 0,0,0
-	
-	if ($o -eq 1) {
-		$offense = $p2Health
-	}
 	
 	$count = fireCount $offense $z
 	#dmg to crew
@@ -215,17 +203,11 @@ function dmgChain($o, $z) {
 	return $dmg
 }
 
-function dmgBoard($o, $zone, $p1, $p2) {
-	$offense = $p1
-	$defense = $p2
+function dmgBoard($o, $d, $boarders, $zone) {
+	$offense = $o
+	$defense = $d
 	$z = $zone * 4
 	
-	if ($o -eq 1) {
-		$offense = $p2
-		$defense = $p1
-	}
-	
-	$boarders = $offense[0+$z]
 	$dmB = $defense[0+$z] * 0.1
 	$dmD = $boarders * 0.15
 	$decB = $dmB % 1
@@ -239,8 +221,7 @@ function dmgBoard($o, $zone, $p1, $p2) {
 		$dmD += 1
 	}
 	
-	
-	$offense[0+$z] = 0
+	$offense[0+$z] -= $boarders
 	$defense[1+$z] = $boarders - [math]::Ceiling($dmB)
 	$defense[0+$z] -= [math]::Ceiling($dmD)
 	
@@ -249,8 +230,8 @@ function dmgBoard($o, $zone, $p1, $p2) {
 
 while ($End -eq 0){
 	$Action = "wait","wait"
-	$Offense = 0
-	$Defense = 0
+	$Offense = $p1Health
+	$Defense = $p2Health
 	
 	if ($Turn -eq 0) {
 		echo "'$Name1' turn"
@@ -258,16 +239,16 @@ while ($End -eq 0){
 		DamageReport 0
 
 		$Turn = 1
-		$Offense = 0
-		$Defense = 1
+		$Offense = $p1Health
+		$Defense = $p2Health
 	} elseif ($Turn -eq 1) {
 		echo "'$Name2' turn"
 		Start-Sleep -Seconds 1
 		DamageReport 1
 		
 		$Turn = 0
-		$Offense = 1
-		$Defense = 0
+		$Offense = $p2Health
+		$Defense = $p1Health
 	}
 	
 	for($j = 0; $j -lt $AcNum; $j++) {
@@ -319,16 +300,22 @@ while ($End -eq 0){
 							  $dmg = dmgChain $Offense $zone; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
+							  $str = Read-Host -Prompt "Choose number of crew to board"
+							  $amnt = [int]$str
 							  if ($zone -lt 0){
-								echo "choose from 'bough', 'mid', and 'stern' for the zone"
+								echo "choose from 'bough', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
 								echo "A zone can only attack once per turn"
 								$i--; break
 							  }
+							  if (($amnt -lt 0) -or ($amnt -gt $Offense[0+($zone*4)])) {
+								echo "Choose a real number of crew members for that zone";
+								$i--; break
+							  }
 							  $fired = $zone;
-							  dmgBoard $Offense $zone $p1Health $p2Health; break}
+							  dmgBoard $Offense $Defense $amnt $zone; break}
 			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move crew', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
@@ -337,11 +324,7 @@ while ($End -eq 0){
 							  $i--; break}
 		}
 		
-		if ($Defense -eq 0) {
-			addDmg $p1Health $dmg $zone
-		} else {
-			addDmg $p2Health $dmg $zone
-		}
+		addDmg $Defense $dmg $zone
 	}
 	
 	skirmish $p1Health $p2Health
