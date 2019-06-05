@@ -43,7 +43,7 @@ $p2Health = 30,0,15,100,30,0,15,100,30,0,15,100
 #print out the damage report
 function DamageReport(){
 	echo "Damage Report:"
-	echo "         $Name1                                       $Name2"
+    echo ("{0,-37} || {1,37}" -f $Name1, $Name2)
 	Start-Sleep -Seconds 1
 	echo "                                     Bough"
 	Start-Sleep -Seconds 1
