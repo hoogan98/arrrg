@@ -1,4 +1,3 @@
-
 # 3 zones: bough, mid, stern
 # 3 health nums: crew, cannons, hull
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
@@ -17,6 +16,7 @@
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 #defensive musket attack that does damage if the enemy decides to board on the next turn
+#boarders do passive damage to cannons and hull if enemy crew is absent
 
 #mvp add
 # retreat boarders
@@ -60,7 +60,7 @@ function DamageReport(){
 	echo "                                     Stern"
 	Start-Sleep -Seconds 1
 	echo "Crew     Boarders   Cannons     Hull  ||  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[8..11] -join "         ") + "   ||  " + ($p1Health[8..11] -join "         ")
+	$str = ($p1Health[8..11] -join "         ") + "   ||  " + ($p2Health[8..11] -join "         ")
 	echo $str
 	
 }
@@ -326,7 +326,7 @@ while ($End -eq 0){
 								$Offense[0+($zone2*4)] += $amnt
 							  }
 							  if ($mov -eq 1){
-								if (($amnt -lt 0) -or ($amnt -gt $Defense[0+($zone1*4)])) {
+								if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone1*4)])) {
 									echo "Choose a real number of crew members for the first zone";
 									$i--; break
 								}
@@ -352,7 +352,21 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  dmgBoard $Offense $Defense $amnt $zone; break}
-			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', or 'help'";
+		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
+							  $zone = readZone($str);
+							  $str = Read-Host -Prompt "Choose number of crew to retreat"
+							  $amnt = [int]$str
+							  if ($zone -lt 0){
+								echo "choose from 'bough', 'mid', and 'stern' for the zone"
+								$i--; break
+							  }
+							  if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone*4)])) {
+								echo "Choose a real number of crew members for that zone";
+								$i--; break
+							  }
+							  $Offense[0+($zone*4)] += $amnt
+							  $Defense[1+($zone*4)] -= $amnt; break}
+			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
@@ -385,4 +399,3 @@ if ($End -eq 1) {
 } elseif ($End -eq 4) {
 	echo "$Name1's ship has sunk, $Name2 wins!"
 }
-
