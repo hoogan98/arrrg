@@ -1,9 +1,12 @@
 
 # 3 zones: bough, mid, stern
 # 3 health nums: crew, cannons, hull
-# 3 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull),start fire, 
-#	put out fire, repair hull, repair cannon(all zone based, effectiveness is based on crew in area), wait
+# 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
+#	repair cannon(all zone based, effectiveness is based on crew in area), wait
 # add ins:
+#start fire
+#put out fire
+#repair hull
 #approach/flee system where you have to get close before boarding
 #damage scaling with distance
 #ui with ship images in seperate terminal
@@ -16,7 +19,6 @@
 #defensive musket attack that does damage if the enemy decides to board on the next turn
 
 #mvp add
-# move crew
 # retreat boarders
 
 #set up names / meta stuff
@@ -39,30 +41,26 @@ $p1Health = 30,0,15,100,30,0,15,100,30,0,15,100
 $p2Health = 30,0,15,100,30,0,15,100,30,0,15,100
 
 #print out the damage report
-function DamageReport($player){
-	$health = $p2Health
-	if ($player -eq 0) {
-		$health = $p1Health
-	}
-
-	echo "	 Damage Report:"
+function DamageReport(){
+	echo "Damage Report:"
+	echo "         $Name1                                       $Name2"
 	Start-Sleep -Seconds 1
-	echo "		Bough"
+	echo "                                     Bough"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull"
-	$str = $health[0..3] -join "         "
+	echo "Crew     Boarders   Cannons     Hull  ||  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[0..3] -join "         ") + "   ||  " +  ($p2Health[0..3] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
-	echo "		Mid"
+	echo "                                     Mid"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull"
-	$str = $health[4..7] -join "         "
+	echo "Crew     Boarders   Cannons     Hull  ||  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[4..7] -join "         ") + "   ||  " + ($p2Health[4..7] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
-	echo "		Stern"
+	echo "                                     Stern"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull"
-	$str = $health[8..11] -join "         "
+	echo "Crew     Boarders   Cannons     Hull  ||  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[8..11] -join "         ") + "   ||  " + ($p1Health[8..11] -join "         ")
 	echo $str
 	
 }
@@ -234,17 +232,17 @@ while ($End -eq 0){
 	$Defense = $p2Health
 	
 	if ($Turn -eq 0) {
-		echo "'$Name1' turn"
+		echo "$Name1's turn"
 		Start-Sleep -Seconds 1
-		DamageReport 0
+		DamageReport
 
 		$Turn = 1
 		$Offense = $p1Health
 		$Defense = $p2Health
 	} elseif ($Turn -eq 1) {
-		echo "'$Name2' turn"
+		echo "$Name2's turn"
 		Start-Sleep -Seconds 1
-		DamageReport 1
+		DamageReport
 		
 		$Turn = 0
 		$Offense = $p2Health
@@ -298,6 +296,45 @@ while ($End -eq 0){
 							  }
 							  $fired = $zone;
 							  $dmg = dmgChain $Offense $zone; break}
+			{$_ -eq "move"}	 {$str = Read-Host -Prompt "enter '0' to move crew on your ship and '1' to move boarded crew"
+							  $mov = [int]$str
+							  $str = Read-Host -Prompt "Choose zone to move from";
+							  $zone1 = readZone($str);
+							  $str = Read-Host -Prompt "Choose zone to move to";
+							  $zone2 = readZone($str);
+							  $str = Read-Host -Prompt "Choose number of crew to move"
+							  $amnt = [int]$str
+							  if ($mov -ne 0 -and $mov -ne 1) {
+								echo "choose either '0' or '1' to determine which ship to move crew on, I'm tired of making string reading functions"
+								$i--; break
+							  }
+							  if ($zone1 -lt 0 -or $zone2 -lt 0){
+								echo "choose from 'bough', 'mid', and 'stern' for the zone";
+								$i--; break
+							  }
+							  if ($zone -eq $fired){
+								echo "A zone can only attack once per turn"
+								$i--; break
+							  }
+							  
+							  if ($mov -eq 0){
+								if (($amnt -lt 0) -or ($amnt -gt $Offense[0+($zone1*4)])) {
+									echo "Choose a real number of crew members for the first zone";
+									$i--; break
+								}
+								$Offense[0+($zone1*4)] -= $amnt
+								$Offense[0+($zone2*4)] += $amnt
+							  }
+							  if ($mov -eq 1){
+								if (($amnt -lt 0) -or ($amnt -gt $Defense[0+($zone1*4)])) {
+									echo "Choose a real number of crew members for the first zone";
+									$i--; break
+								}
+								$Defense[1+($zone1*4)] -= $amnt
+								$Defense[1+($zone2*4)] += $amnt
+							  }
+							  DamageReport
+							  break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to board"
@@ -314,9 +351,8 @@ while ($End -eq 0){
 								echo "Choose a real number of crew members for that zone";
 								$i--; break
 							  }
-							  $fired = $zone;
 							  dmgBoard $Offense $Defense $amnt $zone; break}
-			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move crew', or 'help'";
+			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
