@@ -1,11 +1,10 @@
 # 3 zones: bough, mid, stern
 # 3 health nums: crew, cannons, hull
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
-#	repair cannon(all zone based, effectiveness is based on crew in area), wait
+#	
 # add ins:
 #start fire
 #put out fire
-#repair hull
 #approach/flee system where you have to get close before boarding
 #damage scaling with distance
 #ui with ship images in seperate terminal
@@ -16,10 +15,9 @@
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 #defensive musket attack that does damage if the enemy decides to board on the next turn
-#boarders do passive damage to cannons and hull if enemy crew is absent
 
-#mvp add
-# retreat boarders
+#current job
+#repair hull, repair cannon(all zone based, effectiveness is based on crew in area)
 
 #set up names / meta stuff
 $End = 0;
@@ -143,11 +141,19 @@ function skirmish($p1, $p2) {
 		$z = $i*4
 		if ($p1[1+$z] -gt 0) {
 			$defenders = $p1[0+$z]
+			if ($defenders -eq 0) {
+				$p1[2+$z] -= [math]::Ceiling($p1[1+$z] * 0.05)
+				$p1[3+$z] -= [math]::Ceiling($p1[1+$z] * 0.1)
+			}
 			$p1[0+$z] -= [math]::Ceiling($p1[1+$z] * 0.1)
 			$p1[1+$z] -= [math]::Ceiling($defenders * 0.15)
 		}
 		if ($p2[1+$z] -gt 0) {
 			$defenders = $p2[0+$z]
+			if ($defenders -eq 0) {
+				$p2[2+$z] -= [math]::Ceiling($p2[1+$z] * 0.05)
+				$p2[3+$z] -= [math]::Ceiling($p2[1+$z] * 0.1)
+			}
 			$p2[0+$z] -= [math]::Ceiling($p2[1+$z] * 0.1)
 			$p2[1+$z] -= [math]::Ceiling($defenders * 0.15)
 		}
@@ -220,7 +226,7 @@ function dmgBoard($o, $d, $boarders, $zone) {
 	}
 	
 	$offense[0+$z] -= $boarders
-	$defense[1+$z] = $boarders - [math]::Ceiling($dmB)
+	$defense[1+$z] += ($boarders - [math]::Ceiling($dmB))
 	$defense[0+$z] -= [math]::Ceiling($dmD)
 	
 }
@@ -230,6 +236,9 @@ while ($End -eq 0){
 	$Action = "wait","wait"
 	$Offense = $p1Health
 	$Defense = $p2Health
+	
+	$str = $Offense -join ","
+	$str | Out-File -FilePath .\test.txt
 	
 	if ($Turn -eq 0) {
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -313,12 +322,7 @@ while ($End -eq 0){
 							  if ($zone1 -lt 0 -or $zone2 -lt 0){
 								echo "choose from 'bough', 'mid', and 'stern' for the zone";
 								$i--; break
-							  }
-							  if ($zone -eq $fired){
-								echo "A zone can only attack once per turn"
-								$i--; break
-							  }
-							  
+							  }							  
 							  if ($mov -eq 0){
 								if (($amnt -lt 0) -or ($amnt -gt $Offense[0+($zone1*4)])) {
 									echo "Choose a real number of crew members for the first zone";
@@ -329,7 +333,7 @@ while ($End -eq 0){
 							  }
 							  if ($mov -eq 1){
 								if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone1*4)])) {
-									echo "Choose a real number of crew members for the first zone";
+									echo "Choose a real number of crew members for the first zone BOARD";
 									$i--; break
 								}
 								$Defense[1+($zone1*4)] -= $amnt
@@ -368,7 +372,14 @@ while ($End -eq 0){
 							  }
 							  $Offense[0+($zone*4)] += $amnt
 							  $Defense[1+($zone*4)] -= $amnt; break}
-			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', or 'help'";
+			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
+							  $zone = readZone($str);
+							  if ($zone -lt 0){
+								echo "choose from 'bough', 'mid', and 'stern' for the zone"
+								$i--; break
+							  }
+							  rebuild $Offense; break}
+			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
