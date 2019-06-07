@@ -3,6 +3,7 @@
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
 #	
 # add ins:
+#brace function that mitigates damage to a zone
 #more ships with special stats
 # fast ship? can flee once per turn for free
 # undead crew: crew heals, but can't board
@@ -16,8 +17,6 @@
 #current job(s)
 #ui with ship images in seperate terminal
 #"animate" ui by keeping size of window constant and printing something new
-#damage scaling with distance
-#FIX WEIRD DISTANCE DISPLAY BUG, I THINK IT IS JUST THE DISPLAY
 
 
 #set up names / meta stuff
@@ -44,26 +43,34 @@ $p2State = 0,0,0
 
 #	SYSTEM FUNCTIONS
 #print out the damage report
-function DamageReport(){
+function DamageReport($Dis){
+	for ($i = 0; $i -lt 12; $i++) {
+		if ($p1Health[$i] -lt 0) {
+			$p1Health[$i] = 0;
+		}
+		if ($p2Health[$i] -lt 0) {
+			$p2Health[$i] = 0;
+		}
+	}
 	echo "Damage Report:"
-    echo ("{0,-37} |$Distance| {1,37}" -f $Name1, $Name2)
+    echo ("{0,-37} |$Dis| {1,37}" -f $Name1, $Name2)
 	Start-Sleep -Seconds 1
 	echo "                                     Bough"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull  |$Distance|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[0..3] -join "         ") + "   |$Distance|  " +  ($p2Health[0..3] -join "         ")
+	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[0..3] -join "         ") + "   |$Dis|  " +  ($p2Health[0..3] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
 	echo "                                     Mid"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull  |$Distance|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[4..7] -join "         ") + "   |$Distance|  " + ($p2Health[4..7] -join "         ")
+	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[4..7] -join "         ") + "   |$Dis|  " + ($p2Health[4..7] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
 	echo "                                     Stern"
 	Start-Sleep -Seconds 1
-	echo "Crew     Boarders   Cannons     Hull  |$Distance|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[8..11] -join "         ") + "   |$Distance|  " + ($p2Health[8..11] -join "         ")
+	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	$str = ($p1Health[8..11] -join "         ") + "   |$Dis|  " + ($p2Health[8..11] -join "         ")
 	echo $str
 	
 }
@@ -225,7 +232,6 @@ function reArm($Offense, $zone1, $zone2, $amnt) {
 	$Offense[0+($zone1*4)] -= $amnt
 	$Offense[2+($zone2*4)] += $amnt
 	$Offense[0+($zone2*4)] += $amnt
-	DamageReport
 	return 0
 }
 
@@ -239,14 +245,12 @@ function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
 		$Defense[1+($zone1*4)] -= $amnt
 		$Defense[1+($zone2*4)] += $amnt
 	}
-	DamageReport
 }
 
 #retreating crew from boarding
 function retreat($Offense, $Defense, $zone, $amnt) {
 	$Offense[0+($zone*4)] += $amnt - ([math]::Ceiling($Defense[0+($zone*4)]) * 0.1)
 	$Defense[1+($zone*4)] -= $amnt
-	DamageReport
 }
 
 #boarding ships
@@ -278,7 +282,6 @@ function board($o, $d, $ds, $boarders, $zone) {
 	$offense[0+$z] -= $boarders
 	$defense[1+$z] += ($boarders - [math]::Ceiling($dmB))
 	$defense[0+$z] -= [math]::Ceiling($dmD)
-	DamageReport
 }
 
 #moving ship
@@ -292,54 +295,55 @@ function sail($dir, $Dis) {
 	if($Dis -lt 0){
 		$Dis = 0
 	}
+	return $Dis
 }
 
 #	DAMAGE FUNCTIONS
 #calculate damage from grapeshot given a specific zone
 #dmg is returned in an array[crew,cannon,hull]
-function dmgGrape($o, $z) {
+function dmgGrape($o, $z, $Dis) {
 	$offense = $o
 	$dmg = 0,0,0
 	
 	$count = fireCount $offense $z
 	#dmg to crew
-	$dmg[0] = $count / (3+$Distance)
+	$dmg[0] = $count / (3+($Dis / 1.5))
 	#dmg to cannons
-	$dmg[1] = $count / (3+$Distance)
+	$dmg[1] = $count / (3+($Dis / 1.5))
 	#dmg to hull
-	$dmg[2] = $count / (9+$Distance)
+	$dmg[2] = $count / (9+($Dis / 1.5))
 	
 	return $dmg
 }
 
 #damage from roundshot
-function dmgRound($o, $z) {
+function dmgRound($o, $z, $Dis) {
 	$offense = $o
 	$dmg = 0,0,0
 	
 	$count = fireCount $offense $z
 	#dmg to crew
-	$dmg[0] = $count / (9+$Distance)
+	$dmg[0] = $count / (9+($Dis / 1.5))
 	#dmg to cannons
-	$dmg[1] = $count / (7+$Distance)
+	$dmg[1] = $count / (7+($Dis / 1.5))
 	#dmg to hull
-	$dmg[2] = $count / (0.5+$Distance)
+	$dmg[2] = $count / (0.5+($Dis / 1.5))
 	
 	return $dmg
 }
 
 #damage from chainshot
-function dmgChain($o, $z) {
+function dmgChain($o, $z, $Dis) {
 	$offense = $o
 	$dmg = 0,0,0
 	
 	$count = fireCount $offense $z
 	#dmg to crew
-	$dmg[0] = $count / (1+$Distance)
+	$dmg[0] = $count / (1+($Dis / 1.5))
 	#dmg to cannons
-	$dmg[1] = $count / (9+$Distance)
+	$dmg[1] = $count / (9+($Dis / 1.5))
 	#dmg to hull
-	$dmg[2] = $count / (5+$Distance)
+	$dmg[2] = $count / (5+($Dis / 1.5))
 	
 	return $dmg
 }
@@ -363,7 +367,6 @@ while ($End -eq 0){
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		echo ("{0,37}'s turn" -f $Name1)
 		Start-Sleep -Seconds 1
-		DamageReport
 
 		$Turn = 1
 		$Offense = $p1Health
@@ -374,7 +377,6 @@ while ($End -eq 0){
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		echo ("{0,37}'s turn" -f $Name2)
 		Start-Sleep -Seconds 1
-		DamageReport
 		
 		$Turn = 0
 		$Offense = $p2Health
@@ -383,6 +385,8 @@ while ($End -eq 0){
 		$Ds = $p1State
 	}
 	
+	DamageReport $dis
+
 	if ($AcNum -eq 1) {
 		$str = Read-Host -Prompt "choose starting distance between ships"
 		$dis = [int]$str
@@ -411,7 +415,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgGrape $Offense $zone; break}
+							  $dmg = dmgGrape $Offense $zone $dis; break}
 			{$_ -eq "round"} {$str = Read-Host -Prompt "Choose zone to fire roundshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -423,7 +427,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgRound $Offense $zone; break}
+							  $dmg = dmgRound $Offense $zone $dis; break}
 			{$_ -eq "chain"} {$str = Read-Host -Prompt "Choose zone to fire chainshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -435,7 +439,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgChain $Offense $zone; break}
+							  $dmg = dmgChain $Offense $zone $dis; break}
 			{$_ -eq "move"}	 {$str = Read-Host -Prompt "enter '0' to move crew on your ship and '1' to move boarded crew"
 							  $mov = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to move from";
@@ -464,7 +468,8 @@ while ($End -eq 0){
 									$i--; break
 								}
 							  }
-							  crewMove $Offense $Defense $mov $amnt $zone1 $zone2; break}
+							  crewMove $Offense $Defense $mov $amnt $zone1 $zone2
+							  DamageReport $dis; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to board"
@@ -482,7 +487,8 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
 							  }
-							  board $Offense $Defense $Ds $amnt $zone; break}
+							  board $Offense $Defense $Ds $amnt $zone
+							  DamageReport $dis; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to retreat"
@@ -500,7 +506,8 @@ while ($End -eq 0){
 								echo "Choose a real number of crew members to retreat";
 								$i--; break
 							  }
-							  retreat $Offense $Defense $zone $amnt; break}
+							  retreat $Offense $Defense $zone $amnt
+							  DamageReport $dis; break}
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -536,7 +543,8 @@ while ($End -eq 0){
 							  if ($success -lt 0) {
 								echo "the $zone2 can't hold that many cannons"
 								$i--; break
-							  }; break}
+							  }
+							  DamageReport $dis; break}
 		{$_ -eq "molotov"}	 {$str = Read-Host -Prompt "enter '0' to set fire on your ship and '1' to set fire on the enemy ship"
 							  $fr = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to burn";
@@ -581,7 +589,8 @@ while ($End -eq 0){
 								echo "choose either '0' or '1' to determine which direction to sail, I'm tired of making string reading functions"
 								$i--; break
 							  }
-							  sail $dir $dis; break}
+							  $dis = sail $dir $dis
+							  DamageReport $dis; break}
 			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'molotov', 'defend', 'sail', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
@@ -595,15 +604,9 @@ while ($End -eq 0){
 	
 	skirmish $p1Health $p2Health
 	checkState $Offense $Os $Defense $Ds
-	for ($i = 0; $i -lt 12; $i++) {
-		if ($p1Health[$i] -lt 0) {
-			$p1Health[$i] = 0;
-		}
-		if ($p2Health[$i] -lt 0) {
-			$p2Health[$i] = 0;
-		}
-	}
+	
 	$End = checkWin $p1Health $p2Health
+	$Distance = $dis
 	$AcNum = 2;
 }
 
