@@ -45,7 +45,7 @@ $p2State = 0,0,0
 
 #	SYSTEM FUNCTIONS
 #print out the damage report
-function DamageReport($Dis){
+function DamageReport($Dis, $o){
 	for ($i = 0; $i -lt 12; $i++) {
 		if ($p1Health[$i] -lt 0) {
 			$p1Health[$i] = 0;
@@ -77,8 +77,9 @@ function DamageReport($Dis){
 	$str = ($p1Health[8..11] -join "         ") + "   |$Dis|  " + ($p2Health[8..11] -join "         ")
 	echo $str
 	Clear-Content -Path .\turn.txt
-	Add-Content -Path .\turn.txt -Value "start"
-	invoke-expression 'cmd /c start powershell -Command { .\gui.ps1 }'
+	$str = ($o -join ",")
+	Add-Content -Path .\turn.txt -Value $str
+	invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
 }
 
 #calculate number of cannons to fire given health value and zone
@@ -391,7 +392,7 @@ while ($End -eq 0){
 		$Ds = $p1State
 	}
 	
-	DamageReport $dis
+	DamageReport $dis $Offense
 
 	if ($AcNum -eq 1) {
 		$str = Read-Host -Prompt "choose starting distance between ships"
@@ -475,7 +476,7 @@ while ($End -eq 0){
 								}
 							  }
 							  crewMove $Offense $Defense $mov $amnt $zone1 $zone2
-							  DamageReport $dis; break}
+							  DamageReport $dis $Offense; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to board"
@@ -494,7 +495,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  board $Offense $Defense $Ds $amnt $zone
-							  DamageReport $dis; break}
+							  DamageReport $dis $Offense; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to retreat"
@@ -513,7 +514,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  retreat $Offense $Defense $zone $amnt
-							  DamageReport $dis; break}
+							  DamageReport $dis $Offense; break}
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -550,7 +551,7 @@ while ($End -eq 0){
 								echo "the $zone2 can't hold that many cannons"
 								$i--; break
 							  }
-							  DamageReport $dis; break}
+							  DamageReport $dis $Offense; break}
 		{$_ -eq "molotov"}	 {$str = Read-Host -Prompt "enter '0' to set fire on your ship and '1' to set fire on the enemy ship"
 							  $fr = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to burn";
@@ -596,7 +597,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $dis = sail $dir $dis
-							  DamageReport $dis; break}
+							  DamageReport $dis $Offense; break}
 			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'molotov', 'defend', 'sail', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
