@@ -21,6 +21,16 @@ if ([int]$health[11] -lt 41) {
 	$sc = "Yellow"
 }
 
+if ([int]$health[12] -lt 0) {
+	$bc = "darkRed"
+}
+if ([int]$health[13] -lt 0) {
+	$mc = "darkRed"
+}
+if ([int]$health[14] -lt 0) {
+	$sc = "darkRed"
+}
+
 Get-Content .\images\defaultShip.txt | ForEach-Object {
     $b = $_.Substring(0,30)
 	$m = $_.Substring(30,20)
