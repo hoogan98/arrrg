@@ -13,10 +13,11 @@
 # ironsides: 200 hull, can't repair hull, high crew, can't move
 #print out a description of the commands when you call help
 #make sure all functions take only one ship array to make constructing ship objects easier
+#"animate" ui by keeping size of window constant and printing something new
 
 #current job(s)
 #ui with ship images in seperate terminal
-#"animate" ui by keeping size of window constant and printing something new
+
 
 
 #set up names / meta stuff
@@ -26,6 +27,7 @@ $Name2 = Read-Host -Prompt "Input name for p2"
 $Turn = 0;
 $AcNum = 1;
 $Distance = 1
+Add-Content -Path .\turn.txt -Value "init"
 
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
@@ -52,6 +54,8 @@ function DamageReport($Dis){
 			$p2Health[$i] = 0;
 		}
 	}
+	Clear-Content -Path .\turn.txt
+	Add-Content -Path .\turn.txt -Value "stop"
 	echo "Damage Report:"
     echo ("{0,-37} |$Dis| {1,37}" -f $Name1, $Name2)
 	Start-Sleep -Seconds 1
@@ -72,7 +76,9 @@ function DamageReport($Dis){
 	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
 	$str = ($p1Health[8..11] -join "         ") + "   |$Dis|  " + ($p2Health[8..11] -join "         ")
 	echo $str
-	
+	Clear-Content -Path .\turn.txt
+	Add-Content -Path .\turn.txt -Value "start"
+	invoke-expression 'cmd /c start powershell -Command { .\gui.ps1 }'
 }
 
 #calculate number of cannons to fire given health value and zone
@@ -610,6 +616,7 @@ while ($End -eq 0){
 	$AcNum = 2;
 }
 
+#winning print-outs
 if ($End -eq 1) {
 	echo "$Name2 ran out of living crew, $Name1 wins!"
 } elseif ($End -eq 2) {
@@ -619,3 +626,6 @@ if ($End -eq 1) {
 } elseif ($End -eq 4) {
 	echo "$Name1's ship has sunk, $Name2 wins!"
 }
+
+#clean-up
+Remove-Item -Path .\turn.txt
