@@ -124,10 +124,10 @@ function addDmg($health, $dmg, $zone) {
 		}
 	}
 	
-	$health[0+$z] -= [math]::Floor($dmg[0])
+	$health[0+$z] -= [math]::Ceiling($dmg[0])
 	$health[1+$z] -= [math]::Floor($dmg[0])
-	$health[2+$z] -= [math]::Floor($dmg[1])
-	$health[3+$z] -= [math]::Floor($dmg[2])
+	$health[2+$z] -= [math]::Ceiling($dmg[1])
+	$health[3+$z] -= [math]::Ceiling($dmg[2])
 }
 
 #checks for victory
@@ -472,7 +472,7 @@ while ($End -eq 0){
 								}
 							  }
 							  if ($mov -eq 1) {
-								if (($amnt -lt 0) -or ($amnt -gt $Dffense[1+($zone1*4)])) {
+								if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone1*4)])) {
 									echo "Choose a real number of crew members to move";
 									$i--; break
 								}
@@ -506,7 +506,7 @@ while ($End -eq 0){
 								echo "choose from 'bough', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
-							  if ($dist -ne 0) {
+							  if ($dis -ne 0) {
 								echo "not close enough to enemy ship to pull back boarders"
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
@@ -631,4 +631,7 @@ if ($End -eq 1) {
 }
 
 #clean-up
+Clear-Content -Path .\turn.txt
+Add-Content -Path .\turn.txt -Value "stop"
+Start-Sleep -Seconds 5
 Remove-Item -Path .\turn.txt
