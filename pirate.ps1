@@ -4,7 +4,6 @@
 # thanks to christopher johnson for the ship image: https://asciiart.website/index.php?art=transportation/nautical	
 
 # add ins:
-#brace function that mitigates damage to a zone
 #more ships with special stats
 # fast ship? can flee once per turn for free
 # undead crew: crew heals, but can't board
@@ -18,10 +17,9 @@
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
 #make sure all functions take only one ship array to make constructing ship objects easier
-#"animate" ui by keeping size of window constant and printing something new
 
 #current job(s)
-#ui with ship images in seperate terminal
+
 
 
 
@@ -217,7 +215,7 @@ function rebuild($o, $zone, $of, $builders) {
 	if ($builders -le 0) {
 		return
 	}
-	if ($of[$zone] -eq 1) {
+	if ($of[$zone] -lt 1) {
 		$of[$zone] = 0
 		return
 	}
@@ -494,7 +492,7 @@ while ($End -eq 0){
 								echo "Choose a real number of crew members to board";
 								$i--; break
 							  }
-							  if ($dist -ne 0) {
+							  if ($dis -ne 0) {
 								echo "not close enough to enemy ship to initiate boarding"
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
