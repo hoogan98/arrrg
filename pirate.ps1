@@ -126,7 +126,7 @@ function addDmg($health, $dmg, $zone) {
 	
 	$health[0+$z] -= [math]::Ceiling($dmg[0])
 	$health[1+$z] -= [math]::Floor($dmg[0])
-	$health[2+$z] -= [math]::Ceiling($dmg[1])
+	$health[2+$z] -= [math]::Floor($dmg[1])
 	$health[3+$z] -= [math]::Ceiling($dmg[2])
 }
 
@@ -617,17 +617,19 @@ while ($End -eq 0){
 	$End = checkWin $p1Health $p2Health
 	$Distance = $dis
 	$AcNum = 2;
-}
-
-#winning print-outs
-if ($End -eq 1) {
-	echo "$Name2 ran out of living crew, $Name1 wins!"
-} elseif ($End -eq 2) {
-	echo "$Name1 ran out of living crew, $Name2 wins!"
-} elseif ($End -eq 3) {
-	echo "$Name2's ship has sunk, $Name1 wins!"
-} elseif ($End -eq 4) {
-	echo "$Name1's ship has sunk, $Name2 wins!"
+	#winning print-outs
+	if ($End -eq 1) {
+		echo "$Name2 ran out of living crew, $Name1 wins!"
+	} elseif ($End -eq 2) {
+		echo "$Name1 ran out of living crew, $Name2 wins!"
+	} elseif ($End -eq 3) {
+		echo "$Name2's ship has sunk, $Name1 wins!"
+	} elseif ($End -eq 4) {
+		echo "$Name1's ship has sunk, $Name2 wins!"
+	}
+	echo "final status"
+	DamageReport $dis $Offense $Os
+	Start-Sleep -seconds 10
 }
 
 #clean-up
