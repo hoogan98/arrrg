@@ -1,7 +1,8 @@
 # 3 zones: bough, mid, stern
 # 3 health nums: crew, cannons, hull
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
-#	
+# thanks to christopher johnson for the ship image: https://asciiart.website/index.php?art=transportation/nautical	
+
 # add ins:
 #brace function that mitigates damage to a zone
 #more ships with special stats
@@ -11,6 +12,10 @@
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
+# viking ship, fast with no cannons but real good boarders
+# ramming ship
+# french ship that surrenders immediately
+# maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
 #make sure all functions take only one ship array to make constructing ship objects easier
 #"animate" ui by keeping size of window constant and printing something new
