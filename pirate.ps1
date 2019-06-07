@@ -16,10 +16,9 @@
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
-#make sure all functions take only one ship array to make constructing ship objects easier
 
 #current job(s)
-
+#get a system for choosing a specialty ship running
 
 
 
