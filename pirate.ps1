@@ -11,7 +11,7 @@
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
-# viking ship, fast with no cannons but real good boarders
+# viking ship, fast with no cannons but real good boarders probably not, no balance
 # ramming ship
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
@@ -30,6 +30,8 @@ $Turn = 0;
 $AcNum = 1;
 $Distance = 1
 Add-Content -Path .\turn.txt -Value "init"
+
+. .\ships.ps1
 
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
@@ -70,7 +72,7 @@ function DamageReport($Dis, $o, $os, $on){
 		Add-Content -Path .\turn.txt -Value $str
 	} catch {
 		Clear-Content -Path .\turn.txt
-		$str = ($o -join ",") + "," + ($os -join ",")
+		$str = ($o -join ",") + "," + ($os -join ",") + " " + $on
 		Add-Content -Path .\turn.txt -Value $str
 	}
 	
@@ -382,8 +384,8 @@ while ($End -eq 0){
 	$Defense = $p2Health
 	$Os = $p1State
 	$Ds = $p2State
-	$On = $p1Name
-	$Dn = $p2Name
+	$On = $Name1
+	$Dn = $Name2
 	$dis = $Distance
 	
 	if ($Turn -eq 0) {
@@ -396,8 +398,8 @@ while ($End -eq 0){
 		$Defense = $p2Health
 		$Os = $p1State
 		$Ds = $p2State
-		$On = $p1Name
-		$Dn = $p2Name
+		$On = $Name1
+		$Dn = $Name2
 	} elseif ($Turn -eq 1) {
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		echo ("{0,37}'s turn" -f $Name2)
@@ -408,8 +410,8 @@ while ($End -eq 0){
 		$Defense = $p1Health
 		$Os = $p2State
 		$Ds = $p1State
-		$On = $p2Name
-		$Dn = $p1Name
+		$On = $Name2
+		$Dn = $Name1
 	}
 
 	DamageReport $dis $Offense $Os $On
