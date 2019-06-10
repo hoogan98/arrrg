@@ -14,6 +14,7 @@ function makeRegularShip() {
 		$StrucDmg = 0.1
 		$HitRate = 0.5
 		$MissRate = 0.5
+		$Defense = 1.5
 		
 		#calculate number of cannons to fire given health value and zone
 		function fireCount($zone) {
@@ -33,52 +34,55 @@ function makeRegularShip() {
 		#calculate damage from grapeshot given a specific zone
 		#dmg is returned in an array[crew,cannon,hull]
 		function dmgGrape($z, $Dis) {
-			$dmg = 0,0,0
+			$dmg = 0,0,0,0
 			
 			$count = fireCount $z
 			#dmg to crew
 			$dmg[0] = $count / (3+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
 			#dmg to cannons
-			$dmg[1] = $count / (3+($Dis / 1.5))
+			$dmg[2] = $count / (3+($Dis / 1.5))
 			#dmg to hull
-			$dmg[2] = $count / (9+($Dis / 1.5))
+			$dmg[3] = $count / (9+($Dis / 1.5))
 			
 			return $dmg
 		}
 
 		#damage from roundshot
 		function dmgRound($z, $Dis) {
-			$dmg = 0,0,0
+			$dmg = 0,0,0,0
 			
 			$count = fireCount $z
 			#dmg to crew
 			$dmg[0] = $count / (9+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
 			#dmg to cannons
-			$dmg[1] = $count / (7+($Dis / 1.5))
+			$dmg[2] = $count / (7+($Dis / 1.5))
 			#dmg to hull
-			$dmg[2] = $count / (0.5+($Dis / 1.5))
+			$dmg[3] = $count / (0.5+($Dis / 1.5))
 			
 			return $dmg
 		}
 
 		#damage from chainshot
 		function dmgChain($z, $Dis) {
-			$dmg = 0,0,0
+			$dmg = 0,0,0,0
 			
 			$count = fireCount $z
 			#dmg to crew
 			$dmg[0] = $count / (1+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
 			#dmg to cannons
-			$dmg[1] = $count / (9+($Dis / 1.5))
+			$dmg[2] = $count / (9+($Dis / 1.5))
 			#dmg to hull
-			$dmg[2] = $count / (5+($Dis / 1.5))
+			$dmg[3] = $count / (5+($Dis / 1.5))
 			
 			return $dmg
 		}
 
 		#damage from fire
 		function dmgFire {
-			$dmg = 5,2,10
+			$dmg = 5,5,2,10
 			return $dmg
 		}
 		
@@ -86,14 +90,12 @@ function makeRegularShip() {
 		function board($ds, $boarders, $zone) {
 			$offense = $health
 			$defense = $ds.Health
+			$dmg = 0,0,0,0
 			$z = $zone * 4
-			$state = ($defense[0+$z] * 0.1) * $ds.State[$zone]
-			if ($state -lt 0) {
-				$state = 0
-			}
+			$state = ($ds.Defense * $ds.State[$zone]) + 1
 			
-			$dmB = ($defense[0+$z] * 0.1) + $state
-			$dmD = ($boarders * 0.15) - $state
+			$dmB = $defense[0+$z] * (0.1 * $state)
+			$dmD = $boarders * (0.15 / $state)
 			if ($dmD -lt 0) {
 				$dmD = 0
 			}
@@ -109,8 +111,13 @@ function makeRegularShip() {
 			}
 			
 			$offense[0+$z] -= $boarders
-			$defense[1+$z] += ($boarders - [math]::Ceiling($dmB))
-			$defense[0+$z] -= [math]::Ceiling($dmD)
+			$defense[1+$z] += $boarders
+			$dmg[1] = [math]::Ceiling($dmB)
+			$dmg[0] = [math]::Ceiling($dmD)
+			
+			write-host $dmg
+			
+			return $dmg
 		}
 		
 		#repairing hull
@@ -134,11 +141,6 @@ function makeRegularShip() {
 		function retreat($ds, $zone, $amnt) {
 			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * 0.1))
 			$ds.Health[1+($zone*4)] -= $amnt
-		}
-		
-		#defending from boarding
-		function defBoard($zone){
-			$State[$zone] = 2
 		}
 		
 		#moving ship
@@ -166,6 +168,7 @@ function makeRegularShip() {
 		Export-ModuleMember -Variable StrucDmg
 		Export-ModuleMember -Variable HitRate
 		Export-ModuleMember -Variable MissRate
+		Export-ModuleMember -Variable Defense
 		Export-ModuleMember -Function fireCount
 		Export-ModuleMember -Function dmgRound
 		Export-ModuleMember -Function dmgChain
@@ -174,7 +177,6 @@ function makeRegularShip() {
 		Export-ModuleMember -Function board
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
-		Export-ModuleMember -Function defBoard
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
     }
