@@ -56,8 +56,18 @@ function DamageReport($Dis, $o, $os){
 			$p2Health[$i] = 0;
 		}
 	}
-	Clear-Content -Path .\turn.txt
-	Add-Content -Path .\turn.txt -Value "stop"
+	
+	#Alan Turing is probably rolling in his grave because of the next few lines
+	try {
+		Clear-Content -Path .\turn.txt
+		$str = ($o -join ",") + "," + ($os -join ",")
+		Add-Content -Path .\turn.txt -Value $str
+	} catch {
+		Clear-Content -Path .\turn.txt
+		$str = ($o -join ",") + "," + ($os -join ",")
+		Add-Content -Path .\turn.txt -Value $str
+	}
+	
 	echo "Damage Report:"
     echo ("{0,-37} |$Dis| {1,37}" -f $Name1, $Name2)
 	Start-Sleep -Seconds 1
@@ -78,10 +88,6 @@ function DamageReport($Dis, $o, $os){
 	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
 	$str = ($p1Health[8..11] -join "         ") + "   |$Dis|  " + ($p2Health[8..11] -join "         ")
 	echo $str
-	Clear-Content -Path .\turn.txt
-	$str = ($o -join ",") + "," + ($os -join ",")
-	Add-Content -Path .\turn.txt -Value $str
-	invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
 }
 
 #calculate number of cannons to fire given health value and zone
@@ -393,10 +399,11 @@ while ($End -eq 0){
 		$Os = $p2State
 		$Ds = $p1State
 	}
-	
+
 	DamageReport $dis $Offense $Os
 
 	if ($AcNum -eq 1) {
+		invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
 		$str = Read-Host -Prompt "choose starting distance between ships"
 		$dis = [int]$str
 	}
@@ -619,17 +626,34 @@ while ($End -eq 0){
 	$AcNum = 2;
 	#winning print-outs
 	if ($End -eq 1) {
+		echo
+		echo
 		echo "$Name2 ran out of living crew, $Name1 wins!"
+		echo "final status"
+		DamageReport $dis $Offense $Os
+		Start-Sleep -seconds 10
 	} elseif ($End -eq 2) {
+		echo
+		echo
 		echo "$Name1 ran out of living crew, $Name2 wins!"
+		echo "final status"
+		DamageReport $dis $Offense $Os
+		Start-Sleep -seconds 10
 	} elseif ($End -eq 3) {
+		echo
+		echo
 		echo "$Name2's ship has sunk, $Name1 wins!"
+		echo "final status"
+		DamageReport $dis $Offense $Os
+		Start-Sleep -seconds 10
 	} elseif ($End -eq 4) {
+		echo
+		echo
 		echo "$Name1's ship has sunk, $Name2 wins!"
+		echo "final status"
+		DamageReport $dis $Offense $Os
+		Start-Sleep -seconds 10
 	}
-	echo "final status"
-	DamageReport $dis $Offense $Os
-	Start-Sleep -seconds 10
 }
 
 #clean-up
