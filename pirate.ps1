@@ -16,11 +16,11 @@
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
-#store name, state, max cannons per zone, and health as a field in the ship type
-#brace to decrease damage
+#add in max damage 
+#add in abandon ship method if you are close enough to the enemy or have boarders
 
 #current job(s)
-#get a system for choosing a specialty ship running
+#change damage to a length 4 array
 
 . .\ships.ps1
 
@@ -114,13 +114,15 @@ function addDmg($health, $dmg, $zonel, $os) {
 	
 	if ($dmg[0] -ne 0) {
 		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[0] * $os.MissRate) -Maximum ($dmg[0] * (1 + $os.HitRate))) )
-		$health[1+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[0] * $os.MissRate) -Maximum ($dmg[0] * (1 + $os.HitRate))) )
 	}
 	if ($dmg[1] -ne 0) {
-		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[1] * $os.MissRate) -Maximum ($dmg[1] * (1 + $os.HitRate))) )
+		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[1] * $os.MissRate) -Maximum ($dmg[1] * (1 + $os.HitRate))) )
 	}
 	if ($dmg[2] -ne 0) {
-		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[2] * $os.MissRate) -Maximum ($dmg[2] * (1 + $os.HitRate))) )
+		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[2] * $os.MissRate) -Maximum ($dmg[2] * (1 + $os.HitRate))) )
+	}
+	if ($dmg[3] -ne 0) {
+		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[3] * $os.MissRate) -Maximum ($dmg[3] * (1 + $os.HitRate))) )
 	}
 }
 
@@ -228,6 +230,11 @@ function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
 	}
 }
 
+#defending from boarding
+function defBoard($os, $zone){
+	$os.State[$zone] = 2
+}
+
 #	MASTER CONTROL
 while ($End -eq 0){
 	$Action = "wait","wait"
@@ -267,7 +274,7 @@ while ($End -eq 0){
 	
 	for($i = 0; $i -lt $AcNum; $i++) {
 		$zone = 0;
-		$dmg = 0,0,0;
+		$dmg = 0,0,0,0;
 		$str = "";
 		
 		switch ($Action[$i]) {
@@ -354,7 +361,9 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
 							  }
-							  $Oship.board($Dship, $amnt, $zone)
+							  $dmg = $Oship.board($Dship, $amnt, $zone)
+							  addDmg $Dship.Health $dmg $zone $Oship
+							  $dmg = 0,0,0,0
 							  DamageReport $dis $Oship $Dship; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
@@ -448,7 +457,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $Oship.defBoard($zone); break}
+							  defBoard $Oship $zone; break}
 			{$_ -eq "sail"}	 {$str = Read-Host -Prompt "Type '0' to approach and '1' to pull back";
 							  $dir = [int]$str;
 							  if ($dir -ne 0 -and $dir -ne 1){
