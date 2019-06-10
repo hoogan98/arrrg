@@ -1,7 +1,7 @@
 # arrrg
 ARRRG
 My friend and I made this while bored at work. It's a two player pirate ship fight that runs on the command line because why not.
-ALSO you have to run the command below for powershell to not reee when you boot the game:
+ALSO you have to run powershell as an administrator then run the command:
 
 ```powershell
 > Set-Executionpolicy Unrestricted
