@@ -4,18 +4,16 @@
 # variable states and functions
 
 # Forgive me Lord Bill Gates, for I have sinned
-function makeRegularShip($name) {
+function makeRegularShip() {
+    
     $ship = New-Module -AsCustomObject -ScriptBlock {
-        [string]$Name = $name
+        $Name = "init"
         $Health = 30,0,15,100,30,0,15,100,30,0,15,100
 		$State = 0,0,0
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
-
-        function SpecialAction() {
-            echo "Special Action!";
-            $script:DebugCount++
-        }
+		$HitRate = 0.5
+		$MissRate = 0.5
 		
 		#calculate number of cannons to fire given health value and zone
 		function fireCount($zone) {
@@ -166,7 +164,8 @@ function makeRegularShip($name) {
 		Export-ModuleMember -Variable State
 		Export-ModuleMember -Variable CrewDmg
 		Export-ModuleMember -Variable StrucDmg
-        Export-ModuleMember -Function SpecialAction
+		Export-ModuleMember -Variable HitRate
+		Export-ModuleMember -Variable MissRate
 		Export-ModuleMember -Function fireCount
 		Export-ModuleMember -Function dmgRound
 		Export-ModuleMember -Function dmgChain
@@ -186,6 +185,8 @@ function readShip($name) {
 	if ($name -eq "some string") {
 		#return a special snowflake
 	} else {
-		return makeRegularShip($name)
+		$ship = makeRegularShip
+		$ship.Name = $name
+		return $ship
 	}
 }
