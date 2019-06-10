@@ -14,8 +14,16 @@ while (1) {
 	
 	#	SHIP PRINTING
 	Clear-Host
-	#$str = $turn.Substring(   i wish it was this easy
-	#echo "		The R.M.S $str"
+	$i = 0;
+	for ($i; $i -lt 100; $i++) {
+		if ($turn[$i] -eq " ") {
+			$i++
+			break
+		}
+	}
+	$str = $turn.Substring($i)
+	$turn = $turn.Substring(0,$i)
+	echo "		The R.M.S $str"
 	$health = $turn.Split(",")
 	$bc = "white"
 	$mc = "white"
