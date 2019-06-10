@@ -12,15 +12,16 @@
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
 # viking ship, fast with no cannons but real good boarders probably not, no balance
-# ramming ship
+# ramming ship - can ram, but weak hull in mid and stern, also no front cannons but 20 in the mid and back
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
+#store name, state, max cannons per zone, and health as a field in the ship type
 
 #current job(s)
 #get a system for choosing a specialty ship running
 
-
+. .\ships.ps1
 
 #set up names / meta stuff
 $End = 0;
@@ -29,9 +30,11 @@ $Name2 = Read-Host -Prompt "Input name for p2's ship"
 $Turn = 0;
 $AcNum = 1;
 $Distance = 1
+$p1Ship = readShip($Name1)
+$p2Ship = readShip($Name2)
 Add-Content -Path .\turn.txt -Value "init"
 
-. .\ships.ps1
+
 
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
@@ -45,70 +48,49 @@ if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
 	echo
 }
 
-#set up health
-#values are z1[friendCrew,foeCrew,cannon,hull]z2[...]z3[...]
-#both 12 long
-$p1Health = 30,0,15,100,30,0,15,100,30,0,15,100
-$p2Health = 30,0,15,100,30,0,15,100,30,0,15,100
-$p1State = 0,0,0
-$p2State = 0,0,0
-
 #	SYSTEM FUNCTIONS
 #print out the damage report
-function DamageReport($Dis, $o, $os, $on){
+function DamageReport($Dis, $os, $ds){
 	for ($i = 0; $i -lt 12; $i++) {
-		if ($p1Health[$i] -lt 0) {
-			$p1Health[$i] = 0;
+		if ($os.Health[$i] -lt 0) {
+			$os.Health[$i] = 0;
 		}
-		if ($p2Health[$i] -lt 0) {
-			$p2Health[$i] = 0;
+		if ($ds.Health[$i] -lt 0) {
+			$ds.Health[$i] = 0;
 		}
 	}
 	
 	#Alan Turing is probably rolling in his grave because of the next few lines
 	try {
 		Clear-Content -Path .\turn.txt
-		$str = ($o -join ",") + "," + ($os -join ",") + " " + $on
+		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + " " + $os.Name
 		Add-Content -Path .\turn.txt -Value $str
 	} catch {
 		Clear-Content -Path .\turn.txt
-		$str = ($o -join ",") + "," + ($os -join ",") + " " + $on
+		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + " " + $os.Name
 		Add-Content -Path .\turn.txt -Value $str
 	}
 	
 	echo "Damage Report:"
-    echo ("{0,-37} |$Dis| {1,37}" -f $Name1, $Name2)
+    echo ("{0,-37} |$Dis| {1,37}" -f $os.Name, $ds.Name)
 	Start-Sleep -Seconds 1
 	echo "                                     Bough"
 	Start-Sleep -Seconds 1
 	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[0..3] -join "         ") + "   |$Dis|  " +  ($p2Health[0..3] -join "         ")
+	$str = ($os.Health[0..3] -join "         ") + "   |$Dis|  " +  ($ds.Health[0..3] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
 	echo "                                     Mid"
 	Start-Sleep -Seconds 1
 	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[4..7] -join "         ") + "   |$Dis|  " + ($p2Health[4..7] -join "         ")
+	$str = ($os.Health[4..7] -join "         ") + "   |$Dis|  " + ($ds.Health[4..7] -join "         ")
 	echo $str
 	Start-Sleep -Seconds 1
 	echo "                                     Stern"
 	Start-Sleep -Seconds 1
 	echo "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($p1Health[8..11] -join "         ") + "   |$Dis|  " + ($p2Health[8..11] -join "         ")
+	$str = ($os.Health[8..11] -join "         ") + "   |$Dis|  " + ($ds.Health[8..11] -join "         ")
 	echo $str
-}
-
-#calculate number of cannons to fire given health value and zone
-function fireCount($health, $zone) {
-	$z = $zone * 4;
-	$avc = $health[0+$z] - $health[1+$z]
-	$can = $health[2+$z]
-	if ($avc -lt 0) {
-		return 0
-	} elseif($avc -le $can) {
-		return $avc
-	}
-	return $can
 }
 
 #reads parts of ship into zone numbers
@@ -171,90 +153,68 @@ function checkWin($p1, $p2) {
 }
 
 #checks for skirmishing between boarded crew
-function skirmish($p1, $p2) {
+function skirmish($Os, $Ds) {
 	for ($i = 0; $i -lt 3; $i++) {
 		$z = $i*4
-		if ($p1[1+$z] -gt 0) {
-			$defenders = $p1[0+$z]
+		if ($Os.Health[1+$z] -gt 0) {
+			$defenders = $Os.Health[0+$z]
 			if ($defenders -eq 0) {
-				$p1[2+$z] -= [math]::Ceiling($p1[1+$z] * 0.05)
-				$p1[3+$z] -= [math]::Ceiling($p1[1+$z] * 0.1)
+				$Os.Health[2+$z] -= [math]::Ceiling($Os.Health[1+$z] * ($Ds.StrucDmg / 2))
+				$Os.Health[3+$z] -= [math]::Ceiling($Os.Health[1+$z] * $Ds.StrucDmg)
 			}
-			$p1[0+$z] -= [math]::Ceiling($p1[1+$z] * 0.1)
-			$p1[1+$z] -= [math]::Ceiling($defenders * 0.15)
+			$Os.Health[0+$z] -= [math]::Ceiling($Os.Health[1+$z] * $Ds.CrewDmg)
+			$Os.Health[1+$z] -= [math]::Ceiling($defenders * ($Os.CrewDmg * 1.5))
 		}
-		if ($p2[1+$z] -gt 0) {
-			$defenders = $p2[0+$z]
+		if ($Ds.Health[1+$z] -gt 0) {
+			$defenders = $Ds.Health[0+$z]
 			if ($defenders -eq 0) {
-				$p2[2+$z] -= [math]::Ceiling($p2[1+$z] * 0.05)
-				$p2[3+$z] -= [math]::Ceiling($p2[1+$z] * 0.1)
+				$Ds.Health[2+$z] -= [math]::Ceiling($Ds.Health[1+$z] * ($Os.StrucDmg / 2))
+				$Ds.Health[3+$z] -= [math]::Ceiling($Ds.Health[1+$z] * $Os.StrucDmg)
 			}
-			$p2[0+$z] -= [math]::Ceiling($p2[1+$z] * 0.1)
-			$p2[1+$z] -= [math]::Ceiling($defenders * 0.15)
+			$Ds.Health[0+$z] -= [math]::Ceiling($Ds.Health[1+$z] * $Os.CrewDmg)
+			$Ds.Health[1+$z] -= [math]::Ceiling($defenders * ($Ds.CrewDmg * 1.5))
 		}
 	}
 }
 
 #activates fire in a zone
-function startFire($shipFire, $zone){
-	$shipFire[$zone] = -1;
+function startFire($state, $zone){
+	$state[$zone] = -1;
 }
 
 #checks for states of various zones (0 = normal, -1 = on fire, 0+ = defended
-function checkState($o, $os, $d, $ds) {
+function checkState($os, $ds) {
 	for($i = 0; $i -lt 3; $i++) {
 		$z = 4*$i
 		$dmg = 0,0,0
-		if ($os[$i] -eq -1) {
-			$dmg = dmgFire
+		if ($os.State[$i] -eq -1) {
+			$dmg = $os.dmgFire
 			addDmg $o $dmg $i
 		}
-		if ($ds[$i] -eq -1) {
-			$dmg = dmgFire
+		if ($ds.State[$i] -eq -1) {
+			$dmg = $ds.dmgFire
 			addDmg $d $dmg $i
 		}
-		if ($os[$i] -gt 0) {
-			$os[$i]--
+		if ($os.State[$i] -gt 0) {
+			$os.State[$i]--
 		}
-		if ($ds[$i] -gt 0) {
-			$ds[$i]--
+		if ($ds.State[$i] -gt 0) {
+			$ds.State[$i]--
 		}
 	}
-}
-
-#	DEFENSIVE FUNCTIONS
-#repairing hull
-function rebuild($o, $zone, $of, $builders) {
-	if ($builders -le 0) {
-		return
-	}
-	if ($of[$zone] -lt 1) {
-		$of[$zone] = 0
-		return
-	}
-	$z = 4 * $zone
-	$o[3+$z] += [math]::Ceiling($builders * 0.15)
-	if ($o[3+$z] -gt 100) {
-		$o[3+$z] = 100
-	}
-}
-
-#defending from boarding
-function defBoard($os, $zone){
-	$os[$zone] = 2
 }
 
 #	MOVEMENT FUNCTIONS
 #moving cannons
-function reArm($Offense, $zone1, $zone2, $amnt) {
-	if (($Offense[2+($zone2*4)] + $amnt) -gt 15) {
+function reArm($os, $zone1, $zone2, $amnt) {
+	if (($os.Health[2+($zone2*4)] + $amnt) -gt 15) {
 		return -1
 	}
 	
-	$Offense[2+($zone1*4)] -= $amnt
-	$Offense[0+($zone1*4)] -= $amnt
-	$Offense[2+($zone2*4)] += $amnt
-	$Offense[0+($zone2*4)] += $amnt
+	$os.Health[2+($zone1*4)] -= $amnt
+	$os.Health[0+($zone1*4)] -= $amnt
+	$os.Health[2+($zone2*4)] += $amnt
+	$os.Health[0+($zone2*4)] += $amnt
 	return 0
 }
 
@@ -270,151 +230,30 @@ function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
 	}
 }
 
-#retreating crew from boarding
-function retreat($Offense, $Defense, $zone, $amnt) {
-	$Offense[0+($zone*4)] += $amnt - ([math]::Ceiling($Defense[0+($zone*4)]) * 0.1)
-	$Defense[1+($zone*4)] -= $amnt
-}
-
-#boarding ships
-function board($o, $d, $ds, $boarders, $zone) {
-	$offense = $o
-	$defense = $d
-	$z = $zone * 4
-	$state = ($defense[0+$z] * 0.1) * $ds[$zone]
-	if ($state -lt 0) {
-		$state = 0
-	}
-	
-	$dmB = ($defense[0+$z] * 0.1) + $state
-	$dmD = ($boarders * 0.15) - $state
-	if ($dmD -lt 0) {
-		$dmD = 0
-	}
-	$decB = $dmB % 1
-	$decD = $dmD % 1
-	$seed = Get-Random -Minimum -0.5 -Maximum $decB
-	if ($seed -ge 0) {
-		$dmB += 1
-	}
-	$seed = Get-Random -Minimum -0.5 -Maximum $decD
-	if ($seed -ge 0) {
-		$dmD += 1
-	}
-	
-	$offense[0+$z] -= $boarders
-	$defense[1+$z] += ($boarders - [math]::Ceiling($dmB))
-	$defense[0+$z] -= [math]::Ceiling($dmD)
-}
-
-#moving ship
-function sail($dir, $Dis) {
-	if($dir -eq 0) {
-		$Dis -= 1
-	}
-	if ($dir -eq 1) {
-		$Dis += 1
-	}
-	if($Dis -lt 0){
-		$Dis = 0
-	}
-	return $Dis
-}
-
-#	DAMAGE FUNCTIONS
-#calculate damage from grapeshot given a specific zone
-#dmg is returned in an array[crew,cannon,hull]
-function dmgGrape($o, $z, $Dis) {
-	$offense = $o
-	$dmg = 0,0,0
-	
-	$count = fireCount $offense $z
-	#dmg to crew
-	$dmg[0] = $count / (3+($Dis / 1.5))
-	#dmg to cannons
-	$dmg[1] = $count / (3+($Dis / 1.5))
-	#dmg to hull
-	$dmg[2] = $count / (9+($Dis / 1.5))
-	
-	return $dmg
-}
-
-#damage from roundshot
-function dmgRound($o, $z, $Dis) {
-	$offense = $o
-	$dmg = 0,0,0
-	
-	$count = fireCount $offense $z
-	#dmg to crew
-	$dmg[0] = $count / (9+($Dis / 1.5))
-	#dmg to cannons
-	$dmg[1] = $count / (7+($Dis / 1.5))
-	#dmg to hull
-	$dmg[2] = $count / (0.5+($Dis / 1.5))
-	
-	return $dmg
-}
-
-#damage from chainshot
-function dmgChain($o, $z, $Dis) {
-	$offense = $o
-	$dmg = 0,0,0
-	
-	$count = fireCount $offense $z
-	#dmg to crew
-	$dmg[0] = $count / (1+($Dis / 1.5))
-	#dmg to cannons
-	$dmg[1] = $count / (9+($Dis / 1.5))
-	#dmg to hull
-	$dmg[2] = $count / (5+($Dis / 1.5))
-	
-	return $dmg
-}
-
-#damage from fire
-function dmgFire {
-	$dmg = 5,2,10
-	return $dmg
-}
-
 #	MASTER CONTROL
 while ($End -eq 0){
 	$Action = "wait","wait"
-	$Offense = $p1Health
-	$Defense = $p2Health
-	$Os = $p1State
-	$Ds = $p2State
-	$On = $Name1
-	$Dn = $Name2
+	$Oship = $p1Ship
+	$Dship = $p2Ship
 	$dis = $Distance
 	
 	if ($Turn -eq 0) {
-        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-		echo ("{0,37}'s turn" -f $Name1)
-		Start-Sleep -Seconds 1
-
 		$Turn = 1
-		$Offense = $p1Health
-		$Defense = $p2Health
-		$Os = $p1State
-		$Ds = $p2State
-		$On = $Name1
-		$Dn = $Name2
-	} elseif ($Turn -eq 1) {
+		$Oship = $p1Ship
+		$Dship = $p2Ship
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-		echo ("{0,37}'s turn" -f $Name2)
+		echo ("{0,37}'s turn" -f $Oship.Name)
 		Start-Sleep -Seconds 1
-		
+	} elseif ($Turn -eq 1) {
 		$Turn = 0
-		$Offense = $p2Health
-		$Defense = $p1Health
-		$Os = $p2State
-		$Ds = $p1State
-		$On = $Name2
-		$Dn = $Name1
+		$Oship = $p2Ship
+		$Dship = $p1Ship
+        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+		echo ("{0,37}'s turn" -f $Oship.Name)
+		Start-Sleep -Seconds 1
 	}
 
-	DamageReport $dis $Offense $Os $On
+	DamageReport $dis $Oship $Dship
 
 	if ($AcNum -eq 1) {
 		invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
@@ -445,7 +284,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgGrape $Offense $zone $dis; break}
+							  $dmg = $Oship.dmgGrape($zone, $dis); break}
 			{$_ -eq "round"} {$str = Read-Host -Prompt "Choose zone to fire roundshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -457,7 +296,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgRound $Offense $zone $dis; break}
+							  $dmg = $Oship.dmgRound($zone, $dis); break}
 			{$_ -eq "chain"} {$str = Read-Host -Prompt "Choose zone to fire chainshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -469,7 +308,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = dmgChain $Offense $zone $dis; break}
+							  $dmg = $Oship.dmgChain($zone, $dis); break}
 			{$_ -eq "move"}	 {$str = Read-Host -Prompt "enter '0' to move crew on your ship and '1' to move boarded crew"
 							  $mov = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to move from";
@@ -498,8 +337,8 @@ while ($End -eq 0){
 									$i--; break
 								}
 							  }
-							  crewMove $Offense $Defense $mov $amnt $zone1 $zone2
-							  DamageReport $dis $Offense $Os $On; break}
+							  crewMove $Oship.Health $Dship.Health $mov $amnt $zone1 $zone2
+							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to board"
@@ -517,8 +356,8 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
 							  }
-							  board $Offense $Defense $Ds $amnt $zone
-							  DamageReport $dis $Offense $Os $On; break}
+							  $Oship.board($Dship, $amnt, $zone)
+							  DamageReport $dis $Oship $Dship; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to retreat"
@@ -536,8 +375,8 @@ while ($End -eq 0){
 								echo "Choose a real number of crew members to retreat";
 								$i--; break
 							  }
-							  retreat $Offense $Defense $zone $amnt
-							  DamageReport $dis $Offense $Os $On; break}
+							  $Oship.retreat($Dship, $zone, $amnt)
+							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -549,8 +388,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $builders = $Offense[0+(4*$zone)] - $Offense[1+(4*$zone)]
-							  rebuild $Offense $zone $Os $builders; break}
+							  $Oship.rebuild($zone); break}
 			{$_ -eq "rearm"} {$str = Read-Host -Prompt "Choose zone to move from";
 							  $zone1 = readZone($str);
 							  $str = Read-Host -Prompt "Choose zone to move to";
@@ -569,13 +407,13 @@ while ($End -eq 0){
 								echo "$crewNum crew can't move $amnt cannons"
 								$i--; break
 							  }
-							  $success = reArm $Offense $zone1 $zone2 $amnt
+							  $success = reArm $Oship $zone1 $zone2 $amnt
 							  if ($success -lt 0) {
 								echo "the $zone2 can't hold that many cannons"
 								$i--; break
 							  }
-							  DamageReport $dis $Offense $Os $On; break}
-		{$_ -eq "molotov"}	 {$str = Read-Host -Prompt "enter '0' to set fire on your ship and '1' to set fire on the enemy ship"
+							  DamageReport $dis $Oship $Dship; break}
+			{$_ -eq "flame"} {$str = Read-Host -Prompt "enter '0' to set fire on your ship and '1' to set fire on the enemy ship"
 							  $fr = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to burn";
 							  $zone = readZone($str);
@@ -592,14 +430,14 @@ while ($End -eq 0){
 									echo "There is no crew at that zone";
 									$i--; break
 								}
-								startFire $Os $zone
+								startFire $Os.State $zone
 							  }
 							  if ($fr -eq 1) {
 								if ($Defense[1+($zone*4)] -lt 1) {
 									echo "There is no crew at that zone";
 									$i--; break
 								}
-								startFire $Ds $zone
+								startFire $Ds.State $zone
 							  }; break}
 			{$_ -eq "defend"}{$str = Read-Host -Prompt "Choose zone to defend";
 							  $zone = readZone($str);
@@ -612,16 +450,16 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  defBoard $Os $zone; break}
+							  $Oship.defBoard($zone); break}
 			{$_ -eq "sail"}	 {$str = Read-Host -Prompt "Type '0' to approach and '1' to pull back";
 							  $dir = [int]$str;
 							  if ($dir -ne 0 -and $dir -ne 1){
 								echo "choose either '0' or '1' to determine which direction to sail, I'm tired of making string reading functions"
 								$i--; break
 							  }
-							  $dis = sail $dir $dis
-							  DamageReport $dis $Offense $Os $On; break}
-			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'molotov', 'defend', 'sail', or 'help'";
+							  $dis = $Oship.sail($dir, $dis)
+							  DamageReport $dis $Oship $Dship; break}
+			{$_ -eq "help"}	 {$Oship.help;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
@@ -629,13 +467,13 @@ while ($End -eq 0){
 							  $i--; break}
 		}
 		
-		addDmg $Defense $dmg $zone
+		addDmg $Dship.Health $dmg $zone
 	}
 	
-	skirmish $p1Health $p2Health
-	checkState $Offense $Os $Defense $Ds
+	skirmish $Oship $Dship
+	checkState $Oship $Dship
 	
-	$End = checkWin $p1Health $p2Health
+	$End = checkWin $Oship.Health $Dship.Health
 	$Distance = $dis
 	$AcNum = 2;
 	#winning print-outs
@@ -644,28 +482,28 @@ while ($End -eq 0){
 		echo
 		echo "$Name2 ran out of living crew, $Name1 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os $On
+		DamageReport $dis $Oship $Dship
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 2) {
 		echo
 		echo
 		echo "$Name1 ran out of living crew, $Name2 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os $On
+		DamageReport $dis $Oship $Dship
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 3) {
 		echo
 		echo
 		echo "$Name2's ship has sunk, $Name1 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os $On
+		DamageReport $dis $Oship $Dship
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 4) {
 		echo
 		echo
 		echo "$Name1's ship has sunk, $Name2 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os $On
+		DamageReport $dis $Oship $Dship
 		Start-Sleep -seconds 10
 	}
 }
