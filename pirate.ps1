@@ -17,6 +17,7 @@
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
 #store name, state, max cannons per zone, and health as a field in the ship type
+#brace to decrease damage
 
 #current job(s)
 #get a system for choosing a specialty ship running
@@ -108,22 +109,19 @@ function readZone($s) {
 }
 
 #handles adding float damage values to int number values
-function addDmg($health, $dmg, $zone) {
+function addDmg($health, $dmg, $zonel, $os) {
 	$z = $zone * 4
-	for ($i = 0; $i -lt 3; $i++) {
-		if ($dmg[$i] -is [float]) {
-			$dec = $dmg[$i] % 1
-			$seed = Get-Random -Minimum -0.5 -Maximum $dec
-			if ($seed -ge 0) {
-				$dmg[$i] += 1
-			}
-		}
-	}
 	
-	$health[0+$z] -= [math]::Ceiling($dmg[0])
-	$health[1+$z] -= [math]::Floor($dmg[0])
-	$health[2+$z] -= [math]::Floor($dmg[1])
-	$health[3+$z] -= [math]::Ceiling($dmg[2])
+	if ($dmg[0] -ne 0) {
+		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[0] * $os.MissRate) -Maximum ($dmg[0] * (1 + $os.HitRate))) )
+		$health[1+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[0] * $os.MissRate) -Maximum ($dmg[0] * (1 + $os.HitRate))) )
+	}
+	if ($dmg[1] -ne 0) {
+		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[1] * $os.MissRate) -Maximum ($dmg[1] * (1 + $os.HitRate))) )
+	}
+	if ($dmg[2] -ne 0) {
+		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[2] * $os.MissRate) -Maximum ($dmg[2] * (1 + $os.HitRate))) )
+	}
 }
 
 #checks for victory
@@ -326,13 +324,13 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($mov -eq 0) {
-								if (($amnt -lt 0) -or ($amnt -gt $Offense[0+($zone1*4)])) {
+								if (($amnt -lt 0) -or ($amnt -gt $Oship.Health[0+($zone1*4)])) {
 									echo "Choose a real number of crew members to move";
 									$i--; break
 								}
 							  }
 							  if ($mov -eq 1) {
-								if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone1*4)])) {
+								if (($amnt -lt 0) -or ($amnt -gt $Dship.Health[1+($zone1*4)])) {
 									echo "Choose a real number of crew members to move";
 									$i--; break
 								}
@@ -347,7 +345,7 @@ while ($End -eq 0){
 								echo "choose from 'bough', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
-							  if (($amnt -lt 0) -or ($amnt -gt $Offense[0+($zone*4)])) {
+							  if (($amnt -lt 0) -or ($amnt -gt $Oship.Health[0+($zone*4)])) {
 								echo "Choose a real number of crew members to board";
 								$i--; break
 							  }
@@ -371,7 +369,7 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
 							  }
-							  if (($amnt -lt 0) -or ($amnt -gt $Defense[1+($zone*4)])) {
+							  if (($amnt -lt 0) -or ($amnt -gt $Dship.Health[1+($zone*4)])) {
 								echo "Choose a real number of crew members to retreat";
 								$i--; break
 							  }
@@ -399,10 +397,10 @@ while ($End -eq 0){
 								echo "choose from 'bough', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
-							  if ($amnt -gt $Offense[2+($zone1*4)] -or $amnt -lt 0) {
+							  if ($amnt -gt $Oship.Health[2+($zone1*4)] -or $amnt -lt 0) {
 								echo "choose a real number of cannons to move"
 							  }
-							  $crewNum = $Offense[0+($zone1*4)]
+							  $crewNum = $Oship.Health[0+($zone1*4)]
 							  if ($crewNum -lt $amnt) {
 								echo "$crewNum crew can't move $amnt cannons"
 								$i--; break
@@ -426,18 +424,18 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($fr -eq 0) {
-								if ($Offense[0+($zone*4)] -lt 1) {
+								if ($Oship.Health[0+($zone*4)] -lt 1) {
 									echo "There is no crew at that zone";
 									$i--; break
 								}
 								startFire $Os.State $zone
 							  }
 							  if ($fr -eq 1) {
-								if ($Defense[1+($zone*4)] -lt 1) {
+								if ($Dship.Health[1+($zone*4)] -lt 1) {
 									echo "There is no crew at that zone";
 									$i--; break
 								}
-								startFire $Ds.State $zone
+								startFire $Dship.State $zone
 							  }; break}
 			{$_ -eq "defend"}{$str = Read-Host -Prompt "Choose zone to defend";
 							  $zone = readZone($str);
@@ -467,7 +465,7 @@ while ($End -eq 0){
 							  $i--; break}
 		}
 		
-		addDmg $Dship.Health $dmg $zone
+		addDmg $Dship.Health $dmg $zone $Oship
 	}
 	
 	skirmish $Oship $Dship
