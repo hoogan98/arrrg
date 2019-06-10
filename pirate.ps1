@@ -24,8 +24,8 @@
 
 #set up names / meta stuff
 $End = 0;
-$Name1 = Read-Host -Prompt "Input name for p1"
-$Name2 = Read-Host -Prompt "Input name for p2"
+$Name1 = Read-Host -Prompt "Input name for p1's ship"
+$Name2 = Read-Host -Prompt "Input name for p2's ship"
 $Turn = 0;
 $AcNum = 1;
 $Distance = 1
@@ -33,8 +33,14 @@ Add-Content -Path .\turn.txt -Value "init"
 
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
+	echo
     echo "dreadPirateTed wins"
+	echo
 	exit
+} elseif ($Name1 -eq $Name2) {
+	echo
+	echo "that's gonna be confusing, but alright then"
+	echo
 }
 
 #set up health
@@ -47,7 +53,7 @@ $p2State = 0,0,0
 
 #	SYSTEM FUNCTIONS
 #print out the damage report
-function DamageReport($Dis, $o, $os){
+function DamageReport($Dis, $o, $os, $on){
 	for ($i = 0; $i -lt 12; $i++) {
 		if ($p1Health[$i] -lt 0) {
 			$p1Health[$i] = 0;
@@ -60,7 +66,7 @@ function DamageReport($Dis, $o, $os){
 	#Alan Turing is probably rolling in his grave because of the next few lines
 	try {
 		Clear-Content -Path .\turn.txt
-		$str = ($o -join ",") + "," + ($os -join ",")
+		$str = ($o -join ",") + "," + ($os -join ",") + " " + $on
 		Add-Content -Path .\turn.txt -Value $str
 	} catch {
 		Clear-Content -Path .\turn.txt
@@ -376,6 +382,8 @@ while ($End -eq 0){
 	$Defense = $p2Health
 	$Os = $p1State
 	$Ds = $p2State
+	$On = $p1Name
+	$Dn = $p2Name
 	$dis = $Distance
 	
 	if ($Turn -eq 0) {
@@ -388,6 +396,8 @@ while ($End -eq 0){
 		$Defense = $p2Health
 		$Os = $p1State
 		$Ds = $p2State
+		$On = $p1Name
+		$Dn = $p2Name
 	} elseif ($Turn -eq 1) {
         echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		echo ("{0,37}'s turn" -f $Name2)
@@ -398,9 +408,11 @@ while ($End -eq 0){
 		$Defense = $p1Health
 		$Os = $p2State
 		$Ds = $p1State
+		$On = $p2Name
+		$Dn = $p1Name
 	}
 
-	DamageReport $dis $Offense $Os
+	DamageReport $dis $Offense $Os $On
 
 	if ($AcNum -eq 1) {
 		invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
@@ -485,7 +497,7 @@ while ($End -eq 0){
 								}
 							  }
 							  crewMove $Offense $Defense $mov $amnt $zone1 $zone2
-							  DamageReport $dis $Offense $Os; break}
+							  DamageReport $dis $Offense $Os $On; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to board"
@@ -504,7 +516,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  board $Offense $Defense $Ds $amnt $zone
-							  DamageReport $dis $Offense $Os; break}
+							  DamageReport $dis $Offense $Os $On; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
 							  $str = Read-Host -Prompt "Choose number of crew to retreat"
@@ -523,7 +535,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  retreat $Offense $Defense $zone $amnt
-							  DamageReport $dis $Offense $Os; break}
+							  DamageReport $dis $Offense $Os $On; break}
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
@@ -560,7 +572,7 @@ while ($End -eq 0){
 								echo "the $zone2 can't hold that many cannons"
 								$i--; break
 							  }
-							  DamageReport $dis $Offense $Os; break}
+							  DamageReport $dis $Offense $Os $On; break}
 		{$_ -eq "molotov"}	 {$str = Read-Host -Prompt "enter '0' to set fire on your ship and '1' to set fire on the enemy ship"
 							  $fr = [int]$str
 							  $str = Read-Host -Prompt "Choose zone to burn";
@@ -606,7 +618,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $dis = sail $dir $dis
-							  DamageReport $dis $Offense $Os; break}
+							  DamageReport $dis $Offense $Os $On; break}
 			{$_ -eq "help"}	 {echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'molotov', 'defend', 'sail', or 'help'";
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
@@ -630,28 +642,28 @@ while ($End -eq 0){
 		echo
 		echo "$Name2 ran out of living crew, $Name1 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os
+		DamageReport $dis $Offense $Os $On
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 2) {
 		echo
 		echo
 		echo "$Name1 ran out of living crew, $Name2 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os
+		DamageReport $dis $Offense $Os $On
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 3) {
 		echo
 		echo
 		echo "$Name2's ship has sunk, $Name1 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os
+		DamageReport $dis $Offense $Os $On
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 4) {
 		echo
 		echo
 		echo "$Name1's ship has sunk, $Name2 wins!"
 		echo "final status"
-		DamageReport $dis $Offense $Os
+		DamageReport $dis $Offense $Os $On
 		Start-Sleep -seconds 10
 	}
 }
