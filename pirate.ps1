@@ -16,11 +16,9 @@
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
-#add in max damage 
-#add in abandon ship method if you are close enough to the enemy or have boarders
 
 #current job(s)
-#change damage to a length 4 array
+#add in abandon ship method if you are close enough to the enemy or have boarders
 
 . .\ships.ps1
 
@@ -109,20 +107,22 @@ function readZone($s) {
 }
 
 #handles adding float damage values to int number values
-function addDmg($health, $dmg, $zonel, $os) {
+function addDmg($Dship, $dmg, $zone, $os) {
 	$z = $zone * 4
+	$state = ($Dship.Defense * $Dship.State[$zone]) + 1
+	$health = $Dship.Health
 	
 	if ($dmg[0] -ne 0) {
-		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[0] * $os.MissRate) -Maximum ($dmg[0] * (1 + $os.HitRate))) )
+		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $os.MissRate) / $state) -Maximum (($dmg[0] * (1 + $os.HitRate)) / $state)) )
 	}
 	if ($dmg[1] -ne 0) {
-		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[1] * $os.MissRate) -Maximum ($dmg[1] * (1 + $os.HitRate))) )
+		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $os.MissRate) / $state) -Maximum (($dmg[1] * (1 + $os.HitRate)) / $state)) )
 	}
 	if ($dmg[2] -ne 0) {
-		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum ($dmg[2] * $os.MissRate) -Maximum ($dmg[2] * (1 + $os.HitRate))) )
+		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $os.MissRate) / $state) -Maximum (($dmg[2] * (1 + $os.HitRate)) / $state)) )
 	}
 	if ($dmg[3] -ne 0) {
-		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum ($dmg[3] * $os.MissRate) -Maximum ($dmg[3] * (1 + $os.HitRate))) )
+		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $os.MissRate) / $state) -Maximum (($dmg[3] * (1 + $os.HitRate)) / $state)) )
 	}
 }
 
@@ -264,6 +264,9 @@ while ($End -eq 0){
 		invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
 		$str = Read-Host -Prompt "choose starting distance between ships"
 		$dis = [int]$str
+		if ($str -eq "10") {
+			$dis = 10
+		}
 	}
 	
 	for($j = 0; $j -lt $AcNum; $j++) {
@@ -446,7 +449,7 @@ while ($End -eq 0){
 								}
 								startFire $Dship.State $zone
 							  }; break}
-			{$_ -eq "defend"}{$str = Read-Host -Prompt "Choose zone to defend";
+			{$_ -eq "brace"}{$str = Read-Host -Prompt "Choose zone to brace";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
 								echo "choose from 'bough', 'mid', and 'stern' for the zone"
@@ -465,6 +468,12 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $dis = $Oship.sail($dir, $dis)
+							  if ($dis -gt 10) {
+								echo "10 is the max distance"
+								$dis = 10
+								$Action[$i] = Read-Host -Prompt "choose a new action";
+								$i--; break
+							  }
 							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "help"}	 {$Oship.help;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
@@ -474,7 +483,7 @@ while ($End -eq 0){
 							  $i--; break}
 		}
 		
-		addDmg $Dship.Health $dmg $zone $Oship
+		addDmg $Dship $dmg $zone $Oship
 	}
 	
 	skirmish $Oship $Dship
