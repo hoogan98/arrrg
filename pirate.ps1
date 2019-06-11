@@ -6,32 +6,38 @@
 # add ins:
 #more ships with special stats
 # fast ship? can flee once per turn for free
-# undead crew: crew heals, but can't board
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
 # viking ship, fast with no cannons but real good boarders probably not, no balance
-# ramming ship - can ram, but weak hull in mid and stern, also no front cannons but 20 in the mid and back
+
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
+#make the default of any typo be to re-do the whole action
 
 #current job(s)
+# undead crew: crew heals, but can't board
+# ramming ship - can ram, but weak hull in mid and stern, also no front cannons but 20 in the mid and back
 
 
 . .\ships.ps1
 
 #set up names / meta stuff
+#ship codes: 0 = reg; 1 = ram; 2 = undead
 $End = 0;
 $Abandoned = 0;
+
 $Name1 = Read-Host -Prompt "Input name for p1's ship"
+$p1Ship = readShip($Name1)
+
 $Name2 = Read-Host -Prompt "Input name for p2's ship"
+$p2Ship = readShip($Name2)
+
 $Turn = 0;
 $AcNum = 1;
 $Distance = 1
-$p1Ship = readShip($Name1)
-$p2Ship = readShip($Name2)
 Add-Content -Path .\turn.txt -Value "init"
 
 
@@ -530,6 +536,15 @@ while ($End -eq 0){
 			{$_ -eq "wait"}	 {break}
 			default			 {$Action[$i] = Read-Host -Prompt "Action $i not recognized. Try again or type 'help' for command list";
 							  $i--; break}
+			{$_ -eq "ram"}	 {if ($Oship.Code -ne 1) {
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$i--; break
+							  }
+							  if ($dis -ne 1) {
+								$Action[$i] = Read-Host -Prompt "You need to be at distance 1 to ram";
+								$i--; break
+							  }
+							  ; break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship
@@ -541,8 +556,7 @@ while ($End -eq 0){
 	$End = checkWin $p1Ship.Health $p2Ship.Health $Abandoned
 	$Distance = $dis
 	$AcNum = 2;
-	write-host "abandoned is: $Abandoned"
-	write-host "end is: $End"
+
 	if ($Abandoned -eq $End) {
 		$End = 0
 	}
