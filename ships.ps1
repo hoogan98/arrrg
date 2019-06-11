@@ -8,7 +8,7 @@ function makeRegularShip() {
     
     $ship = New-Module -AsCustomObject -ScriptBlock {
         $Name = "init"
-        $Health = 30,0,15,100,30,0,15,100,30,0,15,100
+        $Health = 30,0,15,10,30,0,15,100,30,0,15,100
 		$State = 0,0,0
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
@@ -137,7 +137,7 @@ function makeRegularShip() {
 		
 		#retreating crew from boarding
 		function retreat($ds, $zone, $amnt) {
-			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * 0.1))
+			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
 			$ds.Health[1+($zone*4)] -= $amnt
 		}
 		
