@@ -115,8 +115,6 @@ function makeRegularShip() {
 			$dmg[1] = [math]::Ceiling($dmB)
 			$dmg[0] = [math]::Ceiling($dmD)
 			
-			write-host $dmg
-			
 			return $dmg
 		}
 		
@@ -158,7 +156,7 @@ function makeRegularShip() {
 		}
 		
 		function help() {
-			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'defend', 'sail', or 'help'"
+			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 
         Export-ModuleMember -Variable Name
