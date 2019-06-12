@@ -1,4 +1,3 @@
-
 # Below you will find a function that creates a unique
 # module that can then be used as an "object" with it's own unique
 # variable states and functions
@@ -586,6 +585,166 @@ function makeUndeadShip() {
     return $ship
 }
 
+function makeVikingShip() {
+    
+    $ship = New-Module -AsCustomObject -ScriptBlock {
+        $Name = "init"
+        $Health = 35,0,0,70,35,0,0,70,35,0,0,70
+		$State = 0,0,0
+		$CrewDmg = 0.2
+		$StrucDmg = 0.3
+		$HitRate = 0.5
+		$MissRate = 0.5
+		$Defense = 2
+		$Code = 3
+		
+		#moving cannons
+		function reArm($zone1, $zone2, $amnt) {
+			write-host "vikings do not have access to gunpowder"
+		}
+		
+		#calculate number of cannons to fire given health value and zone
+		function fireCount($zone) {
+			write-host "vikings do not have access to gunpowder"
+		}
+		
+		#boarding ships
+		function board($ds, $boarders, $zone) {
+			$offense = $Health
+			$defense = $ds.Health
+			$dmg = 0,0,0,0
+			$z = $zone * 4
+			$state = ($ds.Defense * $ds.State[$zone]) + 1
+			
+			$dmB = $defense[0+$z] * (0.1 * $state)
+			$dmD = $boarders * (0.15 / $state)
+			if ($dmD -lt 0) {
+				$dmD = 0
+			}
+			$decB = $dmB % 1
+			$decD = $dmD % 1
+			$seed = Get-Random -Minimum -0.5 -Maximum $decB
+			if ($seed -ge 0) {
+				$dmB += 1
+			}
+			$seed = Get-Random -Minimum -0.5 -Maximum $decD
+			if ($seed -ge 0) {
+				$dmD += 1
+			}
+			
+			$offense[0+$z] -= $boarders
+			$defense[1+$z] += $boarders
+			$dmg[1] = [math]::Ceiling($dmB)
+			$dmg[0] = [math]::Ceiling($dmD)
+			
+			return $dmg
+		}
+		
+		#repairing hull
+		function rebuild($zone) {
+			$builders = $Health[0+(4*$zone)] - $Health[1+(4*$zone)]
+			if ($builders -le 0) {
+				return
+			}
+			if ($State[$zone] -lt 0) {
+				$State[$zone] = 0
+				return
+			}
+			$z = 4 * $zone
+			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			if ($Health[3+$z] -gt 100) {
+				$Health[3+$z] = 100
+			}
+		}
+		
+		#retreating crew from boarding
+		function retreat($ds, $zone, $amnt) {
+			$ds.Health[1+($zone*4)] -= $amnt
+			$incoming = $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
+			if ($incoming -lt 0) {
+				return
+			}
+			$Health[0+($zone*4)] += $incoming
+		}
+		
+		#	DAMAGE FUNCTIONS
+		#(this is damage dealt to enemy from your cannons)
+		#calculate damage from grapeshot given a specific zone
+		#dmg is returned in an array[crew,cannon,hull]
+		function dmgGrape($z, $Dis) {
+			write-host "vikings do not have access to gunpowder"
+		}
+
+		#damage from roundshot
+		function dmgRound($z, $Dis) {
+			write-host "vikings do not have access to gunpowder"
+		}
+
+		#damage from chainshot
+		function dmgChain($z, $Dis) {
+			write-host "vikings do not have access to gunpowder"
+		}
+
+		#damage from fire
+		function dmgFire {
+			$dmg = 5,5,2,10
+			return $dmg
+		}
+		
+		#moving ship
+		function sail($dir, $Dis) {
+			if($dir -eq 0) {
+				$Dis -= 1
+			}
+			if ($dir -eq 1) {
+				$Dis += 1
+			}
+			if($Dis -lt 0){
+				$Dis = 0
+			}
+			return $Dis
+		}
+		
+		function help() {
+			echo "choose from: 'wait', 'board', 'move', 'retreat', 'repair', 'flame', 'brace', 'sail', 'arrows', or 'help'"
+		}
+		
+		#range 2, similar to a skirmish in damage. does nothing to hull or cannons
+		function dmgArrows($zone) {
+			$dmg = 0,0,0,0
+			$dmg[0] = [math]::Ceiling(($Health[0+$z] - $Health[0+$z]) * $CrewDmg)
+			$dmg[1] = [math]::Ceiling(($Health[0+$z] - $Health[0+$z]) * $CrewDmg)
+			if ($dmg[0] -lt 0) {
+				$dmg[0] = 0
+				$dmg[1] = 0
+			}
+		}
+
+        Export-ModuleMember -Variable Name
+        Export-ModuleMember -Variable Health
+		Export-ModuleMember -Variable State
+		Export-ModuleMember -Variable CrewDmg
+		Export-ModuleMember -Variable StrucDmg
+		Export-ModuleMember -Variable HitRate
+		Export-ModuleMember -Variable MissRate
+		Export-ModuleMember -Variable Defense
+		Export-ModuleMember -Variable Code
+		Export-ModuleMember -Function fireCount
+		Export-ModuleMember -Function dmgRound
+		Export-ModuleMember -Function dmgChain
+		Export-ModuleMember -Function dmgGrape
+		Export-ModuleMember -Function dmgFire
+		Export-ModuleMember -Function board
+		Export-ModuleMember -Function rebuild
+		Export-ModuleMember -Function retreat
+		Export-ModuleMember -Function sail
+		Export-ModuleMember -Function help
+		Export-ModuleMember -Function reArm
+		Export-ModuleMember -Function dmgArrows
+    }
+    return $ship
+}
+
 function readShip($name, $code) {
 	
 	if ($name -eq "Ram" -or $name -eq "hullbuster" -or $name -eq "hull_buster") {
@@ -600,7 +759,13 @@ function readShip($name, $code) {
 		$ship = makeUndeadShip
 		$ship.Name = $name
 		return $ship
-	} else {
+	} if ($name -eq "viking" -or $name -eq "raider" -or $name -eq "longship") {
+		write-host "you have chosen the viking ship"
+		$code = 3
+		$ship = makeVikingShip
+		$ship.Name = $name
+		return $ship
+	}  else {
 		$ship = makeRegularShip
 		$ship.Name = $name
 		return $ship
