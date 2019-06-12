@@ -11,7 +11,6 @@
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
 # viking ship, fast with no cannons but real good boarders probably not, no balance
-
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 #print out a description of the commands when you call help
@@ -19,7 +18,6 @@
 
 #current job(s)
 # undead crew: crew heals, but can't board
-# ramming ship - can ram, but weak hull in mid and stern, also no front cannons but 20 in the mid and back
 
 
 . .\ships.ps1
@@ -69,7 +67,7 @@ function DamageReport($Dis, $os, $ds){
 	#Alan Turing is probably rolling in his grave because of the next few lines
 	try {
 		Clear-Content -Path .\turn.txt
-		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + " " + $os.Name
+		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + "," + $os.Code + " " + $os.Name
 		Add-Content -Path .\turn.txt -Value $str
 	} catch {
 		Clear-Content -Path .\turn.txt
@@ -234,19 +232,6 @@ function checkState($os, $ds) {
 }
 
 #	MOVEMENT FUNCTIONS
-#moving cannons
-function reArm($os, $zone1, $zone2, $amnt) {
-	if (($os.Health[2+($zone2*4)] + $amnt) -gt 15) {
-		return -1
-	}
-	
-	$os.Health[2+($zone1*4)] -= $amnt
-	$os.Health[0+($zone1*4)] -= $amnt
-	$os.Health[2+($zone2*4)] += $amnt
-	$os.Health[0+($zone2*4)] += $amnt
-	return 0
-}
-
 #moving crew
 function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
 	if ($mov -eq 0){
@@ -419,9 +404,14 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "choose a new action";
 								$i--; break
 							  }
-							  $dmg = $Oship.board($Dship, $amnt, $zone)
-							  addDmg $Dship $dmg $zone $Oship
-							  $dmg = 0,0,0,0
+							  if ($Dship.Health[3+(4*$zone)] -eq 0) {
+								write-host "the ship has sunk... Your crew just jumped into the ocean"
+								$Oship.Health[0+(4*$zone)] -= $amnt
+							  } else {
+								$dmg = $Oship.board($Dship, $amnt, $zone)
+								addDmg $Dship $dmg $zone $Oship
+								$dmg = 0,0,0,0
+							  }
 							  DamageReport $dis $Oship $Dship; break}
 		{$_ -eq "retreat"} 	 {$str = Read-Host -Prompt "Choose zone to pull boarders from";
 							  $zone = readZone($str);
@@ -440,7 +430,12 @@ while ($End -eq 0){
 								write-host "Choose a real number of crew members to retreat";
 								$i--; break
 							  }
-							  $Oship.retreat($Dship, $zone, $amnt)
+							  if ($Dship.Health[3+(4*$zone)] -eq 0) {
+								write-host "the ship has sunk... Your crew just jumped into the ocean"
+								$Oship.Health[1+(4*$zone)] -= $amnt
+							  } else {
+								$Oship.retreat($Dship, $zone, $amnt)
+							  }
 							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
@@ -472,9 +467,10 @@ while ($End -eq 0){
 								write-host "$crewNum crew can't move $amnt cannons"
 								$i--; break
 							  }
-							  $success = reArm $Oship $zone1 $zone2 $amnt
+							  $success = $Oship.reArm($zone1, $zone2, $amnt)
 							  if ($success -lt 0) {
-								write-host "the $zone2 can't hold that many cannons"
+								write-host "that zone can't hold that many cannons"
+								$Action[$i] = Read-Host -Prompt "choose a new action"
 								$i--; break
 							  }
 							  DamageReport $dis $Oship $Dship; break}
@@ -504,7 +500,7 @@ while ($End -eq 0){
 								}
 								startFire $Dship.State $zone
 							  }; break}
-			{$_ -eq "brace"}{$str = Read-Host -Prompt "Choose zone to brace";
+			{$_ -eq "brace"} {$str = Read-Host -Prompt "Choose zone to brace";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
 								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
@@ -536,7 +532,13 @@ while ($End -eq 0){
 			{$_ -eq "wait"}	 {break}
 			default			 {$Action[$i] = Read-Host -Prompt "Action $i not recognized. Try again or type 'help' for command list";
 							  $i--; break}
-			{$_ -eq "ram"}	 {if ($Oship.Code -ne 1) {
+			{$_ -eq "ram"}	 {$str = Read-Host -Prompt "Choose zone to ram";
+							  $zone = readZone($str)
+							  if ($zone -lt 0){
+								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								$i--; break
+							  }
+							  if ($Oship.Code -ne 1) {
 								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
 								$i--; break
 							  }
@@ -544,7 +546,13 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "You need to be at distance 1 to ram";
 								$i--; break
 							  }
-							  ; break}
+							  if ($zone -eq $fired){
+								write-host "A zone can only do one non-movement action per turn"
+								$i--; break
+							  }
+							  $fired = $zone;
+							  $dis--
+							  $dmg = $Oship.dmgRam(); break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship
