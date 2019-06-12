@@ -95,8 +95,12 @@ function makeRegularShip() {
 		
 		#retreating crew from boarding
 		function retreat($ds, $zone, $amnt) {
-			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
 			$ds.Health[1+($zone*4)] -= $amnt
+			$incoming = $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
+			if ($incoming -lt 0) {
+				return
+			}
+			$Health[0+($zone*4)] += $incoming
 		}
 		
 		#	DAMAGE FUNCTIONS
@@ -208,7 +212,7 @@ function makeRammingShip() {
 		$StrucDmg = 0.1
 		$HitRate = 0.5
 		$MissRate = 0.5
-		$Defense = 1.5
+		$Defense = 1.65
 		$Code = 1
 		$CannonMax = 0,20,20
 		
@@ -276,8 +280,12 @@ function makeRammingShip() {
 		
 		#retreating crew from boarding
 		function retreat($ds, $zone, $amnt) {
-			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
 			$ds.Health[1+($zone*4)] -= $amnt
+			$incoming = $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
+			if ($incoming -lt 0) {
+				return
+			}
+			$Health[0+($zone*4)] += $incoming
 		}
 		
 		#	DAMAGE FUNCTIONS
@@ -399,12 +407,197 @@ function makeRammingShip() {
     return $ship
 }
 
+function makeUndeadShip() {
+    
+    $ship = New-Module -AsCustomObject -ScriptBlock {
+        $Name = "init"
+        $Health = 20,0,15,100,20,0,15,100,20,0,15,100
+		$State = 0,0,0
+		$CrewDmg = 0.1
+		$StrucDmg = 0.1
+		$HitRate = 0.5
+		$MissRate = 0.5
+		$Defense = 1.5
+		$Code = 2
+		
+		#moving cannons
+		function reArm($zone1, $zone2, $amnt) {
+			if ((Health[2+($zone2*4)] + $amnt) -gt 15) {
+				return -1
+			}
+			
+			$Health[2+($zone1*4)] -= $amnt
+			$Health[0+($zone1*4)] -= $amnt
+			$Health[2+($zone2*4)] += $amnt
+			$Health[0+($zone2*4)] += $amnt
+			return 0
+		}
+		
+		#calculate number of cannons to fire given health value and zone
+		function fireCount($zone) {
+			$z = $zone * 4;
+			$avc = $Health[0+$z] - $Health[1+$z]
+			$can = $Health[2+$z]
+			if ($avc -lt 0) {
+				return 0
+			} elseif($avc -le $can) {
+				return $avc
+			}
+			return $can
+		}
+		
+		#boarding ships
+		function board($ds, $boarders, $zone) {
+			write-host "your crew lands on the enemy ship and immediately crumbles to dust"
+			$dmg = 0,0,0,0
+			$Health[0+($zone*4)] -= $boarders
+			
+			return $dmg
+		}
+		
+		#repairing hull
+		function rebuild($zone) {
+			$builders = $Health[0+(4*$zone)] - $Health[1+(4*$zone)]
+			if ($builders -le 0) {
+				return
+			}
+			if ($State[$zone] -lt 0) {
+				$State[$zone] = 0
+				return
+			}
+			$z = 4 * $zone
+			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			if ($Health[3+$z] -gt 100) {
+				$Health[3+$z] = 100
+			}
+		}
+		
+		#retreating crew from boarding
+		function retreat($ds, $zone, $amnt) {
+			write-host "your undead crew can't survive off-ship"
+		}
+		
+		#	DAMAGE FUNCTIONS
+		#(this is damage dealt to enemy from your cannons)
+		#calculate damage from grapeshot given a specific zone
+		#dmg is returned in an array[crew,cannon,hull]
+		function dmgGrape($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (3+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (3+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (9+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from roundshot
+		function dmgRound($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (9+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (7+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (0.5+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from chainshot
+		function dmgChain($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (1+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (9+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (5+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from fire
+		function dmgFire {
+			$dmg = 5,5,2,10
+			return $dmg
+		}
+		
+		#moving ship
+		function sail($dir, $Dis) {
+			if($dir -eq 0) {
+				$Dis -= 1
+			}
+			if ($dir -eq 1) {
+				$Dis += 1
+			}
+			if($Dis -lt 0){
+				$Dis = 0
+			}
+			return $Dis
+		}
+		
+		function help() {
+			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'resurrect', or 'help'"
+		}
+		
+		function resurrect($zone) {
+			$amnt = [math]::Ceiling(([math]::Sin(0.157*$Health[0+($zone*4)])) * 10)
+			if ($amnt -lt 1) {
+				$amnt = 1
+			}
+			
+			$Health[0+($zone*4)] += $amnt
+		}
+
+        Export-ModuleMember -Variable Name
+        Export-ModuleMember -Variable Health
+		Export-ModuleMember -Variable State
+		Export-ModuleMember -Variable CrewDmg
+		Export-ModuleMember -Variable StrucDmg
+		Export-ModuleMember -Variable HitRate
+		Export-ModuleMember -Variable MissRate
+		Export-ModuleMember -Variable Defense
+		Export-ModuleMember -Variable Code
+		Export-ModuleMember -Function fireCount
+		Export-ModuleMember -Function dmgRound
+		Export-ModuleMember -Function dmgChain
+		Export-ModuleMember -Function dmgGrape
+		Export-ModuleMember -Function dmgFire
+		Export-ModuleMember -Function board
+		Export-ModuleMember -Function rebuild
+		Export-ModuleMember -Function retreat
+		Export-ModuleMember -Function sail
+		Export-ModuleMember -Function help
+		Export-ModuleMember -Function reArm
+		Export-ModuleMember -Function resurrect
+    }
+    return $ship
+}
+
 function readShip($name, $code) {
 	
 	if ($name -eq "Ram" -or $name -eq "hullbuster" -or $name -eq "hull_buster") {
 		write-host "you have chosen the ramming ship"
 		$code = 1
 		$ship = makeRammingShip
+		$ship.Name = $name
+		return $ship
+	} if ($name -eq "ghost" -or $name -eq "undead" -or $name -eq "flying_dutchman") {
+		write-host "you have chosen the undead ship"
+		$code = 2
+		$ship = makeUndeadShip
 		$ship.Name = $name
 		return $ship
 	} else {
