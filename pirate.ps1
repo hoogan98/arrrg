@@ -10,15 +10,13 @@
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
 # ironsides: 200 hull, can't repair hull, high crew, can't move
-# viking ship, fast with no cannons but real good boarders probably not, no balance
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
+# officer ship: few but really experienced crew
 #print out a description of the commands when you call help
-#make the default of any typo be to re-do the whole action
 
 #current job(s)
-# undead crew: crew heals, but can't board
-
+# viking ship, fast with no cannons but real good boarders probably not, no balance
 
 . .\ships.ps1
 
@@ -553,6 +551,17 @@ while ($End -eq 0){
 							  $fired = $zone;
 							  $dis--
 							  $dmg = $Oship.dmgRam(); break}
+	{$_ -eq "resurrect"}	 {$str = Read-Host -Prompt "Choose zone to revive crew on";
+							  $zone = readZone($str)
+							  if ($zone -lt 0){
+								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								$i--; break
+							  }
+							  if ($Oship.Code -ne 2) {
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$i--; break
+							  }
+							  $Oship.resurrect($zone); break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship
