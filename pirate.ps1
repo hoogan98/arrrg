@@ -561,7 +561,28 @@ while ($End -eq 0){
 								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
 								$i--; break
 							  }
-							  $Oship.resurrect($zone); break}
+							  $Oship.resurrect($zone)
+							  DamageReport $dis $Oship $Dship; break}
+		{$_ -eq "arrows"}	 {$str = Read-Host -Prompt "Choose zone to fire arrows from";
+							  $zone = readZone($str)
+							  if ($zone -lt 0){
+								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								$i--; break
+							  }
+							  if ($Oship.Code -ne 3) {
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$i--; break
+							  }
+							  if ($dis -gt 2) {
+								$Action[$i] = Read-Host -Prompt "Your arrows have a range of 2, choose a new action";
+								$i--; break
+							  }
+							  if ($zone -eq $fired){
+								write-host "A zone can only do one non-movement action per turn"
+								$i--; break
+							  }
+							  $fired = $zone;
+							  $dmg = $Oship.dmgArrows($zone); break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship
