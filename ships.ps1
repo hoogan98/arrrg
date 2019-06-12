@@ -18,6 +18,19 @@ function makeRegularShip() {
 		
 		$Code = 0
 		
+		#moving cannons
+		function reArm($zone1, $zone2, $amnt) {
+			if ((Health[2+($zone2*4)] + $amnt) -gt 15) {
+				return -1
+			}
+			
+			$Health[2+($zone1*4)] -= $amnt
+			$Health[0+($zone1*4)] -= $amnt
+			$Health[2+($zone2*4)] += $amnt
+			$Health[0+($zone2*4)] += $amnt
+			return 0
+		}
+		
 		#calculate number of cannons to fire given health value and zone
 		function fireCount($zone) {
 			$z = $zone * 4;
@@ -180,11 +193,12 @@ function makeRegularShip() {
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
+		Export-ModuleMember -Function reArm
     }
     return $ship
 }
 
-function makeRammingShip($reggy) {
+function makeRammingShip() {
     
     $ship = New-Module -AsCustomObject -ScriptBlock {
         $Name = "init"
@@ -196,8 +210,8 @@ function makeRammingShip($reggy) {
 		$MissRate = 0.5
 		$Defense = 1.5
 		$Code = 1
+		$CannonMax = 0,20,20
 		
-		# FUNCTIONS THAT WONT WORK WITH REGGY
 		#calculate number of cannons to fire given health value and zone
 		function fireCount($zone) {
 			$z = $zone * 4;
@@ -265,6 +279,7 @@ function makeRammingShip($reggy) {
 			$Health[0+($zone*4)] += $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
 			$ds.Health[1+($zone*4)] -= $amnt
 		}
+		
 		#	DAMAGE FUNCTIONS
 		#(this is damage dealt to enemy from your cannons)
 		#calculate damage from grapeshot given a specific zone
@@ -340,8 +355,23 @@ function makeRammingShip($reggy) {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'ram', or 'help'"
 		}
 		
-		function dmgRam($ds) {
+		function dmgRam() {
+			$Health[3] -= ([math]::Ceiling((Get-Random -Minimum 20 -Maximum 30)))
+			$dmg = 5,5,2,40
+			return $dmg
+		}
 		
+		#moving cannons
+		function reArm($zone1, $zone2, $amnt) {
+			if (($Health[2+($zone2*4)] + $amnt) -gt $CannonMax[$zone2]) {
+				return -1
+			}
+			
+			$Health[2+($zone1*4)] -= $amnt
+			$Health[0+($zone1*4)] -= $amnt
+			$Health[2+($zone2*4)] += $amnt
+			$Health[0+($zone2*4)] += $amnt
+			return 0
 		}
 
         Export-ModuleMember -Variable Name
@@ -364,6 +394,7 @@ function makeRammingShip($reggy) {
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function dmgRam
+		Export-ModuleMember -Function reArm
     }
     return $ship
 }
