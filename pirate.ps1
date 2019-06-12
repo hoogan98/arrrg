@@ -16,7 +16,7 @@
 #print out a description of the commands when you call help
 
 #current job(s)
-# viking ship, fast with no cannons but real good boarders probably not, no balance
+
 
 . .\ships.ps1
 
