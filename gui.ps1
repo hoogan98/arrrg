@@ -53,11 +53,17 @@ while (1) {
 	if ([int]$health[14] -lt 0) {
 		$sc = "darkRed"
 	}
-
-	Get-Content .\images\defaultShip.txt | ForEach-Object {
+	
+	$code = [int]$health[15]
+	$file = "init"
+	switch ($code) {
+		{$code -eq 0}	{$file = ".\images\defaultShip.txt"; break}
+		{$code -eq 1}	{$file = ".\images\rammingShip.txt"; break}
+	}
+	Get-Content -Path "$($file)" | ForEach-Object {
 		$b = $_.Substring(0,30)
-		$m = $_.Substring(30,20)
-		$s = $_.Substring(50)
+		$m = $_.Substring(30,30)
+		$s = $_.Substring(60)
 		
 		
 		Write-Host -NoNewline -F $bc $b
