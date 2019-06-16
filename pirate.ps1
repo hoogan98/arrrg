@@ -5,7 +5,7 @@
 
 # add ins:
 #more ships with special stats
-# fast ship? can flee once per turn for free
+
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
@@ -16,7 +16,8 @@
 #print out a description of the commands when you call help
 
 #current job(s)
-
+# fast ship? can flee once per turn for free is real accurate
+#figure out how to balance viking ship with lucky13
 
 . .\ships.ps1
 
@@ -582,7 +583,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  $fired = $zone;
-							  $dmg = $Oship.dmgArrows($zone); break}
+							  $dmg = $Oship.dmgArrows($zone, $Dship); break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship

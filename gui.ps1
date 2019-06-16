@@ -30,17 +30,17 @@ while (1) {
 	$sc = "white"
 	if ([int]$health[3] -lt 41) {
 		$bc = "red"
-	} elseif ([int]$health[3] -lt 71) {
+	} elseif ([int]$health[3] -lt 70) {
 		$bc = "Yellow"
 	} 
 	if ([int]$health[7] -lt 41) {
 		$mc = "red"
-	} elseif ([int]$health[7] -lt 71) {
+	} elseif ([int]$health[7] -lt 70) {
 		$mc = "yellow"
 	}
 	if ([int]$health[11] -lt 41) {
 		$sc = "red"
-	} elseif ([int]$health[11] -lt 71) {
+	} elseif ([int]$health[11] -lt 70) {
 		$sc = "Yellow"
 	}
 
@@ -61,6 +61,7 @@ while (1) {
 		{$code -eq 1}	{$file = ".\images\rammingShip.txt"; break}
 		{$code -eq 2}	{$file = ".\images\undeadShip.txt"; break}
 		{$code -eq 3}	{$file = ".\images\vikingShip.txt"; break}
+		{$code -eq 4}	{$file = ".\images\fastShip.txt"; break}
 	}
 	Get-Content -Path "$($file)" | ForEach-Object {
 		$b = $_.Substring(0,30)
