@@ -5,19 +5,17 @@
 
 # add ins:
 #more ships with special stats
-
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
-# ironsides: 200 hull, can't repair hull, high crew, can't move
 # french ship that surrenders immediately
 # maginot ship: 45 guns in mid
 # officer ship: few but really experienced crew
 #print out a description of the commands when you call help
 
 #current job(s)
-# fast ship? can flee once per turn for free is real accurate
-#figure out how to balance viking ship with lucky13
+# ironsides: 200 hull, can't repair hull, high crew, can't move
+
 
 . .\ships.ps1
 
@@ -117,16 +115,16 @@ function addDmg($Dship, $dmg, $zone, $os) {
 	$health = $Dship.Health
 	
 	if ($dmg[0] -ne 0) {
-		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $os.MissRate) / $state) -Maximum (($dmg[0] * (1 + $os.HitRate)) / $state)) )
+		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $os.HitRate) / $state) -Maximum ($dmg[0] / ($state * $os.HitRate))) )
 	}
 	if ($dmg[1] -ne 0) {
-		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $os.MissRate) / $state) -Maximum (($dmg[1] * (1 + $os.HitRate)) / $state)) )
+		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $os.HitRate) / $state) -Maximum ($dmg[1] / ($state * $os.HitRate))) )
 	}
 	if ($dmg[2] -ne 0) {
-		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $os.MissRate) / $state) -Maximum (($dmg[2] * (1 + $os.HitRate)) / $state)) )
+		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $os.HitRate) / $state) -Maximum ($dmg[2] / ($state * $os.HitRate))) )
 	}
 	if ($dmg[3] -ne 0) {
-		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $os.MissRate) / $state) -Maximum (($dmg[3] * (1 + $os.HitRate)) / $state)) )
+		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $os.HitRate) / $state) -Maximum ($dmg[3] / ($state * $os.HitRate))) )
 	}
 }
 
