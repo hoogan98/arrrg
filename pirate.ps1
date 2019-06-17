@@ -622,6 +622,11 @@ while ($End -eq 0){
 			$Abandoned = 3
 			continue
 		}
+		if ($Abandoned -ne 0) {
+			write-host "both ships are now underwater..."
+			write-host "everyone died, nobody wins.  Congratulations you animals."
+			continue
+		}
 		write-host ""
 		write-host ""
 		write-host "$Name2 has sunk, $Name1 wins!"
@@ -633,6 +638,11 @@ while ($End -eq 0){
 			abandonShip $p1Ship $p2Ship $dis
 			$End = 0
 			$Abandoned = 4
+			continue
+		}
+		if ($Abandoned -ne 0) {
+			write-host "both ships are now underwater..."
+			write-host "everyone died, nobody wins.  Congratulations you animals."
 			continue
 		}
 		write-host ""
