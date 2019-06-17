@@ -1109,7 +1109,7 @@ function makeTurtleShip() {
 		
 		#moving ship
 		function sail($dir, $Dis) {
-			if ($name -eq "thicc") {
+			if ($name -eq "thicc" -or $name -eq "rotund") {
 				write-host "hnngggg captain! I'm trying to sail away, but I'm dummy thicc, and the clap of my ass cheecks keeps alerting the pirates!"
 			} else {
 				write-host "your ship is too... big-boned to move"
@@ -1170,7 +1170,7 @@ function readShip($name, $code) {
 		$ship = makeCursedShip
 		$ship.Name = $name
 		return $ship
-	} if ($name -eq "thicc" -or $name -eq "ironsides" -or $name -eq "turtle") {
+	} if ($name -eq "thicc" -or $name -eq "ironsides" -or $name -eq "turtle" -or $name -eq "rotund") {
 		write-host "you have chosen the turtle ship"
 		$code = 5
 		$ship = makeTurtleShip
