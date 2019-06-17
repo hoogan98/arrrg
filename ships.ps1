@@ -12,7 +12,6 @@ function makeRegularShip() {
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
 		$HitRate = 0.5
-		$MissRate = 0.5
 		$Defense = 1.5
 		
 		$Code = 0
@@ -210,7 +209,6 @@ function makeRammingShip() {
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
 		$HitRate = 0.5
-		$MissRate = 0.5
 		$Defense = 1.65
 		$Code = 1
 		$CannonMax = 0,20,20
@@ -415,7 +413,6 @@ function makeUndeadShip() {
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
 		$HitRate = 0.5
-		$MissRate = 0.5
 		$Defense = 1.5
 		$Code = 2
 		
@@ -594,7 +591,6 @@ function makeVikingShip() {
 		$CrewDmg = 0.2
 		$StrucDmg = 0.3
 		$HitRate = 0.5
-		$MissRate = 0.5
 		$Defense = 2
 		$Code = 3
 		
@@ -747,22 +743,22 @@ function makeVikingShip() {
     return $ship
 }
 
-function makeFastShip() {
+function makeCursedShip() {
     
     $ship = New-Module -AsCustomObject -ScriptBlock {
         $Name = "init"
-        $Health = 20,0,13,85,20,0,13,85,20,0,13,85
+        $Health = 25,0,13,100,25,0,13,100,25,0,13,100
 		$State = 0,0,0
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
 		$HitRate = 0.8
-		$MissRate = 0.2
 		$Defense = 1.5
 		$Code = 4
+		$CannonMax = 13,13,13
 		
 		#moving cannons
 		function reArm($zone1, $zone2, $amnt) {
-			if ((Health[2+($zone2*4)] + $amnt) -gt 15) {
+			if (($Health[2+($zone2*4)] + $amnt) -gt $CannonMax[$zone2]) {
 				return -1
 			}
 			
@@ -861,6 +857,10 @@ function makeFastShip() {
 			#dmg to hull
 			$dmg[3] = $count / (9+($Dis / 1.5))
 			
+			for ($i = 0; $i -lt 4; $i++) {
+				$dmg[$i] = [math]::Ceiling( (Get-Random(0, ($dmg[$i] * 2))) )
+			}
+			
 			return $dmg
 		}
 
@@ -877,6 +877,10 @@ function makeFastShip() {
 			#dmg to hull
 			$dmg[3] = $count / (0.5+($Dis / 1.5))
 			
+			for ($i = 0; $i -lt 4; $i++) {
+				$dmg[$i] = [math]::Ceiling( (Get-Random(0, ($dmg[$i] * 2))) )
+			}
+			
 			return $dmg
 		}
 
@@ -892,6 +896,10 @@ function makeFastShip() {
 			$dmg[2] = $count / (9+($Dis / 1.5))
 			#dmg to hull
 			$dmg[3] = $count / (5+($Dis / 1.5))
+			
+			for ($i = 0; $i -lt 4; $i++) {
+				$dmg[$i] = [math]::Ceiling( (Get-Random(0, ($dmg[$i] * 2))) )
+			}
 			
 			return $dmg
 		}
@@ -944,6 +952,198 @@ function makeFastShip() {
     return $ship
 }
 
+function makeTurtleShip() {
+    
+    $ship = New-Module -AsCustomObject -ScriptBlock {
+        $Name = "init"
+        $Health = 35,0,3,150,35,0,10,150,35,0,3,150
+		$State = 0,0,0
+		$CrewDmg = 0.1
+		$StrucDmg = 0.1
+		$HitRate = 0.5
+		$Defense = 5
+		$Code = 5
+		$CannonMax = 3,10,3
+		
+		#moving cannons
+		function reArm($zone1, $zone2, $amnt) {
+			if (($Health[2+($zone2*4)] + $amnt) -gt $CannonMax[$zone2]) {
+				return -1
+			}
+			
+			$Health[2+($zone1*4)] -= $amnt
+			$Health[0+($zone1*4)] -= $amnt
+			$Health[2+($zone2*4)] += $amnt
+			$Health[0+($zone2*4)] += $amnt
+			return 0
+		}
+		
+		#calculate number of cannons to fire given health value and zone
+		function fireCount($zone) {
+			$z = $zone * 4;
+			$avc = $Health[0+$z] - $Health[1+$z]
+			$can = $Health[2+$z]
+			if ($avc -lt 0) {
+				return 0
+			} elseif($avc -le $can) {
+				return $avc
+			}
+			return $can
+		}
+		
+		#boarding ships
+		function board($ds, $boarders, $zone) {
+			$offense = $health
+			$defense = $ds.Health
+			$dmg = 0,0,0,0
+			$z = $zone * 4
+			$state = ($ds.Defense * $ds.State[$zone]) + 1
+			
+			$dmB = $defense[0+$z] * (0.1 * $state)
+			$dmD = $boarders * (0.15 / $state)
+			if ($dmD -lt 0) {
+				$dmD = 0
+			}
+			$decB = $dmB % 1
+			$decD = $dmD % 1
+			$seed = Get-Random -Minimum -0.5 -Maximum $decB
+			if ($seed -ge 0) {
+				$dmB += 1
+			}
+			$seed = Get-Random -Minimum -0.5 -Maximum $decD
+			if ($seed -ge 0) {
+				$dmD += 1
+			}
+			
+			$offense[0+$z] -= $boarders
+			$defense[1+$z] += $boarders
+			$dmg[1] = [math]::Ceiling($dmB)
+			$dmg[0] = [math]::Ceiling($dmD)
+			
+			return $dmg
+		}
+		
+		#repairing hull
+		function rebuild($zone) {
+			$builders = $Health[0+(4*$zone)] - $Health[1+(4*$zone)]
+			if ($builders -le 0) {
+				return
+			}
+			if ($State[$zone] -lt 0) {
+				$State[$zone] = 0
+				return
+			}
+			$z = 4 * $zone
+			$Health[2+$z] += [math]::Ceiling($builders * 0.15)
+			if ($Health[2+$z] -gt $CannonMax[$zone]) {
+				$Health[2+$z] = $CannonMax[$zone]
+			}
+		}
+		
+		#retreating crew from boarding
+		function retreat($ds, $zone, $amnt) {
+			$ds.Health[1+($zone*4)] -= $amnt
+			$incoming = $amnt - ([math]::Ceiling($ds.Health[0+($zone*4)] * $ds.CrewDmg))
+			if ($incoming -lt 0) {
+				return
+			}
+			$Health[0+($zone*4)] += $incoming
+		}
+		
+		#	DAMAGE FUNCTIONS
+		#(this is damage dealt to enemy from your cannons)
+		#calculate damage from grapeshot given a specific zone
+		#dmg is returned in an array[crew,cannon,hull]
+		function dmgGrape($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (3+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (3+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (9+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from roundshot
+		function dmgRound($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (9+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (7+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (0.5+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from chainshot
+		function dmgChain($z, $Dis) {
+			$dmg = 0,0,0,0
+			
+			$count = fireCount $z
+			#dmg to crew
+			$dmg[0] = $count / (1+($Dis / 1.5))
+			$dmg[1] = $dmg[0]
+			#dmg to cannons
+			$dmg[2] = $count / (9+($Dis / 1.5))
+			#dmg to hull
+			$dmg[3] = $count / (5+($Dis / 1.5))
+			
+			return $dmg
+		}
+
+		#damage from fire
+		function dmgFire {
+			$dmg = 5,5,2,10
+			return $dmg
+		}
+		
+		#moving ship
+		function sail($dir, $Dis) {
+			if ($name -eq "thicc") {
+				write-host "hnngggg captain! I'm trying to sail away, but I'm dummy thicc, and the clap of my ass cheecks keeps alerting the pirates!"
+			} else {
+				write-host "your ship is too... big-boned to move"
+			}
+		}
+		
+		function help() {
+			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
+		}
+
+        Export-ModuleMember -Variable Name
+        Export-ModuleMember -Variable Health
+		Export-ModuleMember -Variable State
+		Export-ModuleMember -Variable CrewDmg
+		Export-ModuleMember -Variable StrucDmg
+		Export-ModuleMember -Variable HitRate
+		Export-ModuleMember -Variable MissRate
+		Export-ModuleMember -Variable Defense
+		Export-ModuleMember -Variable Code
+		Export-ModuleMember -Function fireCount
+		Export-ModuleMember -Function dmgRound
+		Export-ModuleMember -Function dmgChain
+		Export-ModuleMember -Function dmgGrape
+		Export-ModuleMember -Function dmgFire
+		Export-ModuleMember -Function board
+		Export-ModuleMember -Function rebuild
+		Export-ModuleMember -Function retreat
+		Export-ModuleMember -Function sail
+		Export-ModuleMember -Function help
+		Export-ModuleMember -Function reArm
+    }
+    return $ship
+}
+
 function readShip($name, $code) {
 	
 	if ($name -eq "Ram" -or $name -eq "hullbuster" -or $name -eq "hull_buster") {
@@ -964,13 +1164,19 @@ function readShip($name, $code) {
 		$ship = makeVikingShip
 		$ship.Name = $name
 		return $ship
-	} if ($name -eq "swift" -or $name -eq "lucky_13" -or $name -eq "fast") {
-		write-host "you have chosen the fast ship"
+	} if ($name -eq "cursed" -or $name -eq "lucky_13" -or $name -eq "lucky") {
+		write-host "you have chosen the 'lucky' ship"
 		$code = 4
-		$ship = makeFastShip
+		$ship = makeCursedShip
 		$ship.Name = $name
 		return $ship
-	}    else {
+	} if ($name -eq "thicc" -or $name -eq "ironsides" -or $name -eq "turtle") {
+		write-host "you have chosen the turtle ship"
+		$code = 5
+		$ship = makeTurtleShip
+		$ship.Name = $name
+		return $ship
+	} else {
 		$ship = makeRegularShip
 		$ship.Name = $name
 		return $ship
