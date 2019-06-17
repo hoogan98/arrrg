@@ -61,7 +61,7 @@ while (1) {
 		{$code -eq 1}	{$file = ".\images\rammingShip.txt"; break}
 		{$code -eq 2}	{$file = ".\images\undeadShip.txt"; break}
 		{$code -eq 3}	{$file = ".\images\vikingShip.txt"; break}
-		{$code -eq 4}	{$file = ".\images\fastShip.txt"; break}
+		{$code -eq 4}	{$file = ".\images\cursedShip.txt"; break}
 	}
 	Get-Content -Path "$($file)" | ForEach-Object {
 		$b = $_.Substring(0,30)
