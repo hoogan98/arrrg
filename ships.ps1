@@ -712,8 +712,8 @@ function makeVikingShip() {
 		#range 2, similar to a skirmish in damage. does nothing to hull or cannons
 		function dmgArrows($zone, $dship) {
 			$dmg = 0,0,0,0
-			$dmg[0] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * $CrewDmg / ($dship.Defense))
-			$dmg[1] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * $CrewDmg / ($Defense))
+			$dmg[0] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * $CrewDmg * $HitRate)
+			$dmg[1] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * $CrewDmg * $HitRate)
 			if ($dmg[0] -lt 0) {
 				$dmg[0] = 0
 				$dmg[1] = 0
