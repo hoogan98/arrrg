@@ -1,7 +1,6 @@
 # 3 zones: bough, mid, stern
 # 3 health nums: crew, cannons, hull
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
-# thanks to christopher johnson for the ship image: https://asciiart.website/index.php?art=transportation/nautical	
 
 # add ins:
 #more ships with special stats
@@ -14,7 +13,6 @@
 #print out a description of the commands when you call help
 
 #current job(s)
-# ironsides: 200 hull, can't repair hull, high crew, can't move
 
 
 . .\ships.ps1
@@ -582,6 +580,17 @@ while ($End -eq 0){
 							  }
 							  $fired = $zone;
 							  $dmg = $Oship.dmgArrows($zone, $Dship); break}
+		{$_ -eq "guard"}	 {$str = Read-Host -Prompt "Choose zone to guard";
+							  $zone = readZone($str);
+							  if ($zone -lt 0){
+								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								$i--; break
+							  }
+							  if ($Oship.Code -ne 5) {
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$i--; break
+							  }
+							  defBoard $Oship $zone; break}
 		}
 		
 		addDmg $Dship $dmg $zone $Oship
