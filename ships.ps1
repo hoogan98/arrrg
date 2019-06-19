@@ -85,7 +85,7 @@ function makeRegularShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -269,7 +269,7 @@ function makeRammingShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -462,7 +462,7 @@ function makeUndeadShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -647,7 +647,7 @@ function makeVikingShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -747,7 +747,7 @@ function makeCursedShip() {
     
     $ship = New-Module -AsCustomObject -ScriptBlock {
         $Name = "init"
-        $Health = 25,0,13,100,25,0,13,100,25,0,13,100
+        $Health = 30,0,13,100,30,0,13,100,30,0,13,100
 		$State = 0,0,0
 		$CrewDmg = 0.1
 		$StrucDmg = 0.1
@@ -825,7 +825,7 @@ function makeCursedShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -1034,7 +1034,7 @@ function makeTurtleShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[2+$z] += [math]::Ceiling($builders * 0.15)
+			$Health[2+$z] += [math]::Ceiling($builders * 0.2)
 			if ($Health[2+$z] -gt $CannonMax[$zone]) {
 				$Health[2+$z] = $CannonMax[$zone]
 			}
@@ -1114,10 +1114,12 @@ function makeTurtleShip() {
 			} else {
 				write-host "your ship is too... big-boned to move"
 			}
-		}
+			
+			return $Dis
+		} 
 		
 		function help() {
-			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
+			echo "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'guard', or 'help'"
 		}
 
         Export-ModuleMember -Variable Name
