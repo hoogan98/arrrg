@@ -1,8 +1,10 @@
 # 3 zones: bow, mid, stern
-# 3 health nums: crew, cannons, hull
-# 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
+# 4 health nums: crew, boarders, cannons, hull
+# As a quick overview, this file contains a few system functions that are independant of the ships and a big switch statement that reads
+# user input.  It imports a class that contains all the ship functions called ships.ps1, and writes some data to a file called 'turn.txt'
+# that the gui uses to draw the ships.
 
-# add ins:
+# add in ideas that I never got around to:
 #more ships with special stats
 # boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
@@ -11,9 +13,6 @@
 # maginot ship: 45 guns in mid
 # officer ship: few but really experienced crew
 #print out a description of the commands when you call help
-
-#current job(s)
-
 
 . .\ships.ps1
 
