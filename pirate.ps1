@@ -1,4 +1,4 @@
-# 3 zones: bough, mid, stern
+# 3 zones: bow, mid, stern
 # 3 health nums: crew, cannons, hull
 # 2 actions per turn, choose from: move crew(zone to zone, same ship), board (ship to ship, same zone), fire cannon[chain(/\crew,-cannon,\/hull),round(\/crew,-cannon,/\hull),grape(-crew,/\cannon,\/hull), 
 
@@ -16,6 +16,40 @@
 
 
 . .\ships.ps1
+
+$tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
+
+if ($tutorial -eq "n" -or $tutorial -eq "no") {
+	write-host "Hello, thanks for playing my dude"
+	write-host "This is a two-player turn-based game about pirate ships"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "If you didn't look at the Readme, you should so you can actually run the game and see the UI"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "players take turns taking two different actions"
+	write-host "To display the actions your ship can take type 'reference' when your turn comes around"
+	write-host "players can also type 'help' to see information about what their particular ship can do"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "You can win by either killing off the other player's crew,"
+	write-host "or by reducing one of their hull zones to zero and sinking their ship"
+	write-host "Be wary though, if the enemy ship is too close when you sink it the crew will abandon ship and board yours"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "The first step is to choose/name your ship"
+	write-host "Typing in any old name will give you the Standard ship, which is a good all-rounder with no glaring weaknesses"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "if you get tired of using the standard, however, there are some more exotic options"
+	write-host "type the names: 'Ram', 'Ghost', 'viking', 'cursed', or 'turtle' to try out some other ships with special augmentations"
+	write-host ""
+	start-sleep -seconds 3
+	write-host "Have fun, and feel free to add / remove stuff from the program"
+	write-host ""
+	start-sleep -seconds 5
+	
+}
 
 #set up names / meta stuff
 #ship codes: 0 = reg; 1 = ram; 2 = undead
@@ -73,7 +107,7 @@ function DamageReport($Dis, $os, $ds){
 	write-host "Damage Report:"
     write-host ("{0,-37} |$Dis| {1,37}" -f $os.Name, $ds.Name)
 	Start-Sleep -Seconds 1
-	write-host "                                     Bough"
+	write-host "                                     bow"
 	Start-Sleep -Seconds 1
 	write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
 	$str = ($os.Health[0..3] -join "         ") + "   |$Dis|  " +  ($ds.Health[0..3] -join "         ")
@@ -94,7 +128,7 @@ function DamageReport($Dis, $os, $ds){
 
 #reads parts of ship into zone numbers
 function readZone($s) {
-	if($s -eq "bough") {
+	if($s -eq "bow") {
 		return 0
 	}
 	if($s -eq "mid") {
@@ -319,7 +353,7 @@ while ($End -eq 0){
 			{$_ -eq "grape"} {$str = Read-Host -Prompt "Choose zone to fire grapeshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -331,7 +365,7 @@ while ($End -eq 0){
 			{$_ -eq "round"} {$str = Read-Host -Prompt "Choose zone to fire roundshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -343,7 +377,7 @@ while ($End -eq 0){
 			{$_ -eq "chain"} {$str = Read-Host -Prompt "Choose zone to fire chainshot from";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -365,7 +399,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($zone1 -lt 0 -or $zone2 -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($mov -eq 0) {
@@ -387,7 +421,7 @@ while ($End -eq 0){
 							  $str = Read-Host -Prompt "Choose number of crew to board"
 							  $amnt = [int]$str
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if (($amnt -lt 0) -or ($amnt -gt $Oship.Health[0+($zone*4)])) {
@@ -413,7 +447,7 @@ while ($End -eq 0){
 							  $str = Read-Host -Prompt "Choose number of crew to retreat"
 							  $amnt = [int]$str
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($dis -ne 0) {
@@ -435,7 +469,7 @@ while ($End -eq 0){
 			{$_ -eq "repair"}{$str = Read-Host -Prompt "Choose zone to repair";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -451,7 +485,7 @@ while ($End -eq 0){
 							  $str = Read-Host -Prompt "Choose number of cannons to move"
 							  $amnt = [int]$str
 							  if ($zone1 -lt 0 -or $zone2 -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($amnt -gt $Oship.Health[2+($zone1*4)] -or $amnt -lt 0) {
@@ -478,7 +512,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($fr -eq 0) {
@@ -498,7 +532,7 @@ while ($End -eq 0){
 			{$_ -eq "brace"} {$str = Read-Host -Prompt "Choose zone to brace";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -521,6 +555,9 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  DamageReport $dis $Oship $Dship; break}
+	{$_ -eq "reference"}	 {$Oship.reference;
+							  $Action[$i] = Read-Host -Prompt "choose a new action";
+							  $i--; break}
 			{$_ -eq "help"}	 {$Oship.help;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
@@ -530,7 +567,7 @@ while ($End -eq 0){
 			{$_ -eq "ram"}	 {$str = Read-Host -Prompt "Choose zone to ram";
 							  $zone = readZone($str)
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 1) {
@@ -551,7 +588,7 @@ while ($End -eq 0){
 	{$_ -eq "resurrect"}	 {$str = Read-Host -Prompt "Choose zone to revive crew on";
 							  $zone = readZone($str)
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 2) {
@@ -563,7 +600,7 @@ while ($End -eq 0){
 		{$_ -eq "arrows"}	 {$str = Read-Host -Prompt "Choose zone to fire arrows from";
 							  $zone = readZone($str)
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone";
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 3) {
@@ -583,7 +620,7 @@ while ($End -eq 0){
 		{$_ -eq "guard"}	 {$str = Read-Host -Prompt "Choose zone to guard";
 							  $zone = readZone($str);
 							  if ($zone -lt 0){
-								write-host "choose from 'bough', 'mid', and 'stern' for the zone"
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone"
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 5) {
