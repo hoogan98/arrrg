@@ -1,3 +1,36 @@
+﻿##[Ps1 To Exe]
+##
+##Kd3HDZOFADWE8uK1
+##Nc3NCtDXThU=
+##Kd3HFJGZHWLWoLaVvnQnhQ==
+##LM/RF4eFHHGZ7/K1
+##K8rLFtDXTiW5
+##OsHQCZGeTiiZ4tI=
+##OcrLFtDXTiW5
+##LM/BD5WYTiiZ4tI=
+##McvWDJ+OTiiZ4tI=
+##OMvOC56PFnzN8u+Vs1Q=
+##M9jHFoeYB2Hc8u+Vs1Q=
+##PdrWFpmIG2HcofKIo2QX
+##OMfRFJyLFzWE8uK1
+##KsfMAp/KUzWJ0g==
+##OsfOAYaPHGbQvbyVvnQX
+##LNzNAIWJGmPcoKHc7Do3uAuO
+##LNzNAIWJGnvYv7eVvnQX
+##M9zLA5mED3nfu77Q7TV64AuzAgg=
+##NcDWAYKED3nfu77Q7TV64AuzAgg=
+##OMvRB4KDHmHQvbyVvnQX
+##P8HPFJGEFzWE8tI=
+##KNzDAJWHD2fS8u+Vgw==
+##P8HSHYKDCX3N8u+Vgw==
+##LNzLEpGeC3fMu77Ro2k3hQ==
+##L97HB5mLAnfMu77Ro2k3hQ==
+##P8HPCZWEGmaZ7/K1
+##L8/UAdDXTlaDjrHa5zFI9l/7RG4Xb9eJq7Gb1Iiu/v7p9SDBTPo=
+##Kc/BRM3KXhU=
+##
+##
+##fd6a9f26a06ea3bc99616d4851b372ba
 # 3 zones: bow, mid, stern
 # 4 health nums: crew, boarders, cannons, hull
 # As a quick overview, this file contains a few system functions that are independant of the ships and a big switch statement that reads
@@ -6,45 +39,47 @@
 
 # add in ideas that I never got around to:
 #more ships with special stats
-# boarder: ship has inwards facing cannons (always on defense no matter what), can move crew for free and has hella crew
 # firebreather: shoots fire, but has a chance to set fire to self and has only 1 type of shot aside from it
 # engineer: crew gets damage/accuracy bonus from cannons, repairs faster, fights horribly
-# french ship that surrenders immediately
-# maginot ship: 45 guns in mid
+# maginot ship: 45 guns and crew in mid, literally nothing on the bow or stern. Impenetrable defense, non?
 # officer ship: few but really experienced crew
-#print out a description of the commands when you call help
 
+# IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
+$turnLoc = ".\turn.txt"
+# It's really in your best interest to just keep everything in its current place
 
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
 if ($tutorial -eq "n" -or $tutorial -eq "no") {
-	write-host "Hello, thanks for playing my dude"
-	write-host "This is a two-player turn-based game about pirate ships"
+	write-host "Hello, thanks for playing my dude."
+	write-host "This is a two-player turn-based game about pirate ships."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "If you didn't look at the Readme, you should so you can actually run the game and see the UI"
+	write-host "If you didn't look at the Readme, you should so you can actually run the game and see the UI."
 	write-host ""
 	start-sleep -seconds 3
 	write-host "players take turns taking two different actions"
-	write-host "To display the actions your ship can take type 'reference' when your turn comes around"
-	write-host "players can also type 'help' to see information about what their particular ship can do"
+	write-host "To display the actions your ship can take type 'reference' when your turn comes around."
+	write-host "Players can also type 'help' to see information about what their particular ship can do."
 	write-host ""
 	start-sleep -seconds 3
 	write-host "You can win by either killing off the other player's crew,"
-	write-host "or by reducing one of their hull zones to zero and sinking their ship"
-	write-host "Be wary though, if the enemy ship is too close when you sink it the crew will abandon ship and board yours"
+	write-host "or by reducing one of their hull zones to zero and sinking their ship."
+	write-host "Be wary though, if the enemy ship is too close when you sink it"
+	write-host "the crew will abandon ship and board yours."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "The first step is to choose/name your ship"
-	write-host "Typing in any old name will give you the Standard ship, which is a good all-rounder with no glaring weaknesses"
+	write-host "The first step is to choose/name your ship."
+	write-host "Typing in any old name will give you the Standard ship,"
+	write-host "which is a good all-rounder with no glaring weaknesses."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "if you get tired of using the standard, however, there are some more exotic options"
-	write-host "type the names: 'Ram', 'Ghost', 'viking', 'cursed', or 'turtle' to try out some other ships with special augmentations"
+	write-host "if you get tired of using the standard, however, there are some more exotic options."
+	write-host "type the names: 'Ram', 'Ghost', or 'viking' to try out some other ships."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "Have fun, and feel free to add / remove stuff from the program"
+	write-host "Have fun, and feel free to add / remove stuff from the program."
 	write-host ""
 	start-sleep -seconds 5
 	
@@ -64,7 +99,7 @@ $p2Ship = readShip($Name2)
 $Turn = 0;
 $AcNum = 1;
 $Distance = 1
-Add-Content -Path .\turn.txt -Value "init"
+Add-Content -Path $turnLoc -Value "init"
 
 
 
@@ -94,13 +129,13 @@ function DamageReport($Dis, $os, $ds){
 	
 	#Alan Turing is probably rolling in his grave because of the next few lines
 	try {
-		Clear-Content -Path .\turn.txt
+		Clear-Content -Path $turnLoc
 		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + "," + $os.Code + " " + $os.Name
-		Add-Content -Path .\turn.txt -Value $str
+		Add-Content -Path $turnLoc -Value $str
 	} catch {
-		Clear-Content -Path .\turn.txt
+		Clear-Content -Path $turnLoc
 		$str = ($os.Health -join ",") + "," + ($os.State -join ",") + " " + $os.Name
-		Add-Content -Path .\turn.txt -Value $str
+		Add-Content -Path $turnLoc -Value $str
 	}
 	
 	write-host "Damage Report:"
@@ -561,7 +596,7 @@ while ($End -eq 0){
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
-			default			 {$Action[$i] = Read-Host -Prompt "Action $i not recognized. Try again or type 'help' for command list";
+			default			 {$Action[$i] = Read-Host -Prompt "Action $i not recognized. Try again or type 'reference' for command list";
 							  $i--; break}
 			{$_ -eq "ram"}	 {$str = Read-Host -Prompt "Choose zone to ram";
 							  $zone = readZone($str)
@@ -570,7 +605,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 1) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  if ($dis -ne 1) {
@@ -591,7 +626,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 2) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  $Oship.resurrect($zone)
@@ -603,7 +638,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 3) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  if ($dis -gt 2) {
@@ -623,7 +658,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 5) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'help' for command list";
+								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  defBoard $Oship $zone; break}
@@ -698,7 +733,7 @@ while ($End -eq 0){
 }
 
 #clean-up
-Clear-Content -Path .\turn.txt
-Add-Content -Path .\turn.txt -Value "stop"
+Clear-Content -Path $turnLoc
+Add-Content -Path $turnLoc -Value "stop"
 Start-Sleep -Seconds 5
-Remove-Item -Path .\turn.txt
+Remove-Item -Path $turnLoc

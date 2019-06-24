@@ -9,8 +9,8 @@ Powershell might ask if you want to change your execution policy, which essentia
 If you don't trust us you can always look at the included source code to see that this isn't a virus.
 
 If the two windows don't fit on the screen very well, all you have to do is right click where it says "windows powershell" in the top
-left of the window, select properties, go to the 'font' tab, and bring the font size down.  This will change the default for the next
-time you run powershell, but just repeat the process to change the font back to normal size.
+left of the window, select properties, go to the 'font' tab, and bring the font size down.  I would reccomend changing the text window
+to font size 12 for both windows.
 --IMPORTANT--
 
 

@@ -1276,6 +1276,10 @@ function makeTurtleShip() {
     return $ship
 }
 
+
+# the code is fully available for a cursed ship and a turtle ship, and you can read their help functions above to know what they do.
+# I felt there was a lot of balance problems with them, but you can add them back in by uncommenting the last two parts of the if statement below
+# also their ascii images are bad, one faces the wrong way and the other is absurdly huge
 function readShip($name, $code) {
 	
 	if ($name -eq "Ram" -or $name -eq "hullbuster" -or $name -eq "hull buster") {
@@ -1284,30 +1288,30 @@ function readShip($name, $code) {
 		$ship = makeRammingShip
 		$ship.Name = $name
 		return $ship
-	} if ($name -eq "ghost" -or $name -eq "undead" -or $name -eq "flying dutchman") {
+	} elseif ($name -eq "ghost" -or $name -eq "undead" -or $name -eq "flying dutchman") {
 		write-host "you have chosen the undead ship"
 		$code = 2
 		$ship = makeUndeadShip
 		$ship.Name = $name
 		return $ship
-	} if ($name -eq "viking" -or $name -eq "raider" -or $name -eq "longship") {
+	} elseif ($name -eq "viking" -or $name -eq "raider" -or $name -eq "longship") {
 		write-host "you have chosen the viking ship"
 		$code = 3
 		$ship = makeVikingShip
 		$ship.Name = $name
 		return $ship
-	} if ($name -eq "cursed" -or $name -eq "lucky 13" -or $name -eq "lucky") {
-		write-host "you have chosen the 'lucky' ship"
-		$code = 4
-		$ship = makeCursedShip
-		$ship.Name = $name
-		return $ship
-	} if ($name -eq "thicc" -or $name -eq "ironsides" -or $name -eq "turtle" -or $name -eq "rotund") {
-		write-host "you have chosen the turtle ship"
-		$code = 5
-		$ship = makeTurtleShip
-		$ship.Name = $name
-		return $ship
+	#} elseif ($name -eq "cursed" -or $name -eq "lucky 13" -or $name -eq "lucky") {
+		#write-host "you have chosen the 'lucky' ship"
+		#$code = 4
+		#$ship = makeCursedShip
+		#$ship.Name = $name
+		#return $ship
+	#} elseif ($name -eq "thicc" -or $name -eq "ironsides" -or $name -eq "turtle" -or $name -eq "rotund") {
+		#write-host "you have chosen the turtle ship"
+		#$code = 5
+		#$ship = makeTurtleShip
+		#$ship.Name = $name
+		#return $ship
 	} else {
 		$ship = makeRegularShip
 		$ship.Name = $name
