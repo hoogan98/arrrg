@@ -106,8 +106,9 @@ Add-Content -Path $turnLoc -Value "init"
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
 	write-host
-    write-host "dreadPirateTed wins"
+    write-host "dreadPirateTed wins, as always"
 	write-host
+	start-sleep -Seconds 5
 	exit
 } elseif ($Name1 -eq $Name2) {
 	write-host
