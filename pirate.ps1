@@ -367,7 +367,8 @@ while ($End -eq 0){
 	if ($AcNum -eq 1) {
 		invoke-expression 'cmd /c start powershell -Command { .\gui.ps1}'
 		$str = Read-Host -Prompt "choose starting distance between ships"
-		$dis = [int]$str
+		try {$dis = [int]$str}
+		catch {write-host "non-integer detected, setting to default distance"; $dis = 4}
 		if ($str -eq "10") {
 			$dis = 10
 		}
@@ -555,7 +556,7 @@ while ($End -eq 0){
 									write-host "There is no crew at that zone";
 									$i--; break
 								}
-								startFire $Os.State $zone
+								startFire $Oship.State $zone
 							  }
 							  if ($fr -eq 1) {
 								if ($Dship.Health[1+($zone*4)] -lt 1) {
@@ -590,7 +591,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  DamageReport $dis $Oship $Dship; break}
-	{$_ -eq "reference"}	 {$Oship.reference;
+	{$_ -eq "reference"}	 {$Oship.ref;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "help"}	 {$Oship.help;

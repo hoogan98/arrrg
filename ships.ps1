@@ -172,7 +172,7 @@ function makeRegularShip() {
 			return $Dis
 		}
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
@@ -215,7 +215,7 @@ function makeRegularShip() {
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function reArm
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
@@ -376,7 +376,7 @@ function makeRammingShip() {
 			return $Dis
 		}
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'ram', or 'help'"
 		}
 		
@@ -442,7 +442,7 @@ function makeRammingShip() {
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function dmgRam
 		Export-ModuleMember -Function reArm
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
@@ -587,7 +587,7 @@ function makeUndeadShip() {
 			return $Dis
 		}
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'resurrect', or 'help'"
 		}
 		
@@ -641,7 +641,7 @@ function makeUndeadShip() {
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function resurrect
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
@@ -765,7 +765,7 @@ function makeVikingShip() {
 			return $Dis
 		}
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'wait', 'board', 'move', 'retreat', 'repair', 'flame', 'brace', 'sail', 'arrows', or 'help'"
 		}
 		
@@ -823,7 +823,7 @@ function makeVikingShip() {
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function dmgArrows
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
@@ -1009,7 +1009,7 @@ function makeCursedShip() {
 			return $Dis
 		}
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
@@ -1054,7 +1054,7 @@ function makeCursedShip() {
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function reArm
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
@@ -1225,7 +1225,7 @@ function makeTurtleShip() {
 			return $Dis
 		} 
 		
-		function reference() {
+		function ref() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'guard', or 'help'"
 		}
 		
@@ -1271,7 +1271,7 @@ function makeTurtleShip() {
 		Export-ModuleMember -Function sail
 		Export-ModuleMember -Function help
 		Export-ModuleMember -Function reArm
-		Export-ModuleMember -Function reference
+		Export-ModuleMember -Function ref
     }
     return $ship
 }
