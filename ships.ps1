@@ -13,7 +13,7 @@ function makeRegularShip() {
 		$StrucDmg = 0.1
 		$HitRate = 0.5
 		$Defense = 1.5
-		
+		$CannonMax = 15,15,15
 		$Code = 0
 		
 		#moving cannons
@@ -457,6 +457,7 @@ function makeUndeadShip() {
 		$StrucDmg = 0.1
 		$HitRate = 0.5
 		$Defense = 1.5
+		$CannonMax = 15,15,15
 		$Code = 2
 		
 		#moving cannons
@@ -656,6 +657,7 @@ function makeVikingShip() {
 		$StrucDmg = 0.3
 		$HitRate = 0.5
 		$Defense = 2
+		$CannonMax = 0,0,0
 		$Code = 3
 		
 		#moving cannons

@@ -129,7 +129,34 @@ function checkStatus($mShip, $eShip, $dis) {
 }
 
 function determineRearm($ship, $z) {
+	$cur = $ship.Health(2 + (4*$z))
 	
+	if ($cur -ge 11) {
+		return 0
+	}
+	
+	$other = 1,1,1
+	$other[$z] = 0
+	$max = 0;
+	$pullZone = -1;
+	for ($i = 0; $i -lt 3; i++) {
+		if (other[$i] -eq 0) {
+			continue;
+		} elseif ($ship.Health[$i] -gt $max) {
+			$max = $ship.Health[2+(4*$i)]
+			$pullZone = $i
+		}
+	}
+	
+	$amnt = $max
+	
+	if ($max -eq 0) {
+		return 0
+	} elseif (($max + $cur) -gt $ship.CannonMax[$pullZone]) {
+		$amnt = $ship.CannonMax[$pullZone] - $cur
+	}
+	
+	$ship.reArm($pullZone, $zone2, $amnt)
 }
 
 function transZone($zone) {
