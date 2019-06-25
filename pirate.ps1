@@ -1,36 +1,4 @@
-﻿##[Ps1 To Exe]
-##
-##Kd3HDZOFADWE8uK1
-##Nc3NCtDXThU=
-##Kd3HFJGZHWLWoLaVvnQnhQ==
-##LM/RF4eFHHGZ7/K1
-##K8rLFtDXTiW5
-##OsHQCZGeTiiZ4tI=
-##OcrLFtDXTiW5
-##LM/BD5WYTiiZ4tI=
-##McvWDJ+OTiiZ4tI=
-##OMvOC56PFnzN8u+Vs1Q=
-##M9jHFoeYB2Hc8u+Vs1Q=
-##PdrWFpmIG2HcofKIo2QX
-##OMfRFJyLFzWE8uK1
-##KsfMAp/KUzWJ0g==
-##OsfOAYaPHGbQvbyVvnQX
-##LNzNAIWJGmPcoKHc7Do3uAuO
-##LNzNAIWJGnvYv7eVvnQX
-##M9zLA5mED3nfu77Q7TV64AuzAgg=
-##NcDWAYKED3nfu77Q7TV64AuzAgg=
-##OMvRB4KDHmHQvbyVvnQX
-##P8HPFJGEFzWE8tI=
-##KNzDAJWHD2fS8u+Vgw==
-##P8HSHYKDCX3N8u+Vgw==
-##LNzLEpGeC3fMu77Ro2k3hQ==
-##L97HB5mLAnfMu77Ro2k3hQ==
-##P8HPCZWEGmaZ7/K1
-##L8/UAdDXTlaDjrHa5zFI9l/7RG4Xb9eJq7Gb1Iiu/v7p9SDBTPo=
-##Kc/BRM3KXhU=
-##
-##
-##fd6a9f26a06ea3bc99616d4851b372ba
+
 # 3 zones: bow, mid, stern
 # 4 health nums: crew, boarders, cannons, hull
 # As a quick overview, this file contains a few system functions that are independant of the ships and a big switch statement that reads
@@ -46,6 +14,7 @@
 
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
+. .\bot.ps1
 $turnLoc = ".\turn.txt"
 # It's really in your best interest to just keep everything in its current place
 
@@ -175,26 +144,6 @@ function readZone($s) {
 	return -1
 }
 
-#handles adding float damage values to int number values
-function addDmg($Dship, $dmg, $zone, $os) {
-	$z = $zone * 4
-	$state = ($Dship.Defense * $Dship.State[$zone]) + 1
-	$health = $Dship.Health
-	
-	if ($dmg[0] -ne 0) {
-		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $os.HitRate) / $state) -Maximum ($dmg[0] / ($state * $os.HitRate))) )
-	}
-	if ($dmg[1] -ne 0) {
-		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $os.HitRate) / $state) -Maximum ($dmg[1] / ($state * $os.HitRate))) )
-	}
-	if ($dmg[2] -ne 0) {
-		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $os.HitRate) / $state) -Maximum ($dmg[2] / ($state * $os.HitRate))) )
-	}
-	if ($dmg[3] -ne 0) {
-		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $os.HitRate) / $state) -Maximum ($dmg[3] / ($state * $os.HitRate))) )
-	}
-}
-
 #checks for victory
 #win codes are: 1/2 for no crew, 3/4 for hull breach
 function checkWin($p1, $p2, $ab) {
@@ -295,18 +244,7 @@ function checkState($os, $ds) {
 	}
 }
 
-#	MOVEMENT FUNCTIONS
-#moving crew
-function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
-	if ($mov -eq 0){
-		$Offense[0+($zone1*4)] -= $amnt
-		$Offense[0+($zone2*4)] += $amnt
-	}
-	if ($mov -eq 1){
-		$Defense[1+($zone1*4)] -= $amnt
-		$Defense[1+($zone2*4)] += $amnt
-	}
-}
+
 
 #defending from boarding
 function defBoard($os, $zone){
@@ -328,7 +266,7 @@ function abandonShip($sunk, $floating, $dis) {
 		if ($dis -eq 0) {
 			$floating.retreat($sunk, $i, $sunk.Health[1+$z])
 			$dmg = $sunk.board($floating, $sunk.Health[0+$z], $i)
-			addDmg $floating $dmg $i $sunk
+			addDmg($floating, $dmg, $i, $sunk)
 			$dmg = 0,0,0,0
 		} else {
 			$sunk.Health[0+$z] = 0
@@ -450,7 +388,7 @@ while ($End -eq 0){
 									$i--; break
 								}
 							  }
-							  crewMove $Oship.Health $Dship.Health $mov $amnt $zone1 $zone2
+							  crewMove($Oship.Health, $Dship.Health, $mov, $amnt, $zone1, $zone2)
 							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
 							  $zone = readZone($str);
@@ -474,7 +412,7 @@ while ($End -eq 0){
 								$Oship.Health[0+(4*$zone)] -= $amnt
 							  } else {
 								$dmg = $Oship.board($Dship, $amnt, $zone)
-								addDmg $Dship $dmg $zone $Oship
+								addDmg($Dship, $dmg, $zone, $Oship)
 								$dmg = 0,0,0,0
 							  }
 							  DamageReport $dis $Oship $Dship; break}
@@ -666,7 +604,7 @@ while ($End -eq 0){
 							  defBoard $Oship $zone; break}
 		}
 		
-		addDmg $Dship $dmg $zone $Oship
+		addDmg($Dship, $dmg, $zone, $Oship)
 	}
 	
 	skirmish $Oship $Dship
