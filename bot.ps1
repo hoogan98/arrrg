@@ -1,5 +1,37 @@
 $wants = "","","","","","","","","","",""
-#do a while loop that keeps running until two actions are chosen, if you get over 2000 runs though just wait
+#do a while loop that keeps running until two actions are chosen, if you get over 200 runs though just wait
+
+#handles adding float damage values to int number values
+function addDmg($Dship, $dmg, $zone, $os) {
+	$z = $zone * 4
+	$state = ($Dship.Defense * $Dship.State[$zone]) + 1
+	$health = $Dship.Health
+	
+	if ($dmg[0] -ne 0) {
+		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $os.HitRate) / $state) -Maximum ($dmg[0] / ($state * $os.HitRate))) )
+	}
+	if ($dmg[1] -ne 0) {
+		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $os.HitRate) / $state) -Maximum ($dmg[1] / ($state * $os.HitRate))) )
+	}
+	if ($dmg[2] -ne 0) {
+		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $os.HitRate) / $state) -Maximum ($dmg[2] / ($state * $os.HitRate))) )
+	}
+	if ($dmg[3] -ne 0) {
+		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $os.HitRate) / $state) -Maximum ($dmg[3] / ($state * $os.HitRate))) )
+	}
+}
+
+#moving crew
+function crewMove($Offense, $Defense, $mov, $amnt, $zone1, $zone2) {
+	if ($mov -eq 0){
+		$Offense[0+($zone1*4)] -= $amnt
+		$Offense[0+($zone2*4)] += $amnt
+	}
+	if ($mov -eq 1){
+		$Defense[1+($zone1*4)] -= $amnt
+		$Defense[1+($zone2*4)] += $amnt
+	}
+}
 
 function checkStatus($mShip, $eShip, $dis) {
 	$i = 0;
@@ -142,7 +174,7 @@ function determineRearm($ship, $z) {
 	for ($i = 0; $i -lt 3; i++) {
 		if (other[$i] -eq 0) {
 			continue;
-		} elseif ($ship.Health[$i] -gt $max) {
+		} elseif ($ship.Health[2+(4*$i)] -gt $max) {
 			$max = $ship.Health[2+(4*$i)]
 			$pullZone = $i
 		}
@@ -156,7 +188,35 @@ function determineRearm($ship, $z) {
 		$amnt = $ship.CannonMax[$pullZone] - $cur
 	}
 	
-	$ship.reArm($pullZone, $zone2, $amnt)
+	$ship.reArm($pullZone, $z, $amnt)
+	write-host "bot decides to rearm"
+	return 1
+}
+
+function determineMove($ship, $z) {
+	$cur = $ship.Health(0 + (4*$z))
+	$other = 1,1,1
+	$other[$z] = 0
+	$max = 0;
+	$pullZone = -1;
+	for ($i = 0; $i -lt 3; i++) {
+		if (other[$i] -eq 0) {
+			continue;
+		} elseif ($ship.Health[4*$i] -gt $max) {
+			$max = $ship.Health[4*$i]
+			$pullZone = $i
+		}
+	}
+	
+	$amnt = $max
+	
+	if ($max -eq 0) {
+		return 0
+	}
+	
+	crewMove($ship.Health, $ship.Health, 0, $amnt, $pullZone, $z)
+	write-host "bot decides to move crew"
+	return 1
 }
 
 function transZone($zone) {
@@ -169,11 +229,12 @@ function transZone($zone) {
 	}
 }
 
-function decide($ship) {
-	$tuns = 0;
+function decide($ship, $Dship, $dis) {
+	$turns = 2;
 	$fired = 4;
 	$i = 0
-	while ($turns -lt 2) {
+	$dmg = 0,0,0,0
+	while ($turns -gt 0) {
 		$i++
 		$rand = Get-Random -Minimum 0 -Maximum 100
 		write-host $rand
@@ -183,14 +244,55 @@ function decide($ship) {
 				continue;
 			}
 			$comm = $str.Substring(0, $str.length - 1)
-			$zone = $str.Substring($str.length - 1, 1)
-			$z = transZone($zone)
+			$zone = transZone($str.Substring($str.length - 1, 1))
 			switch ($comm) {
-				{$_ -eq "chain"} {$turns += determineRearm($ship, $z)
+				{$_ -eq "chain"} {	if ($turns -eq 2) {
+										$turns -= determineRearm($ship, $zone)
+									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									$turns -= 1
+									write-host "bot decides to fire chainshot"
+									$dmg = $ship.dmgChain($zone, $dis); break}
+				{$_ -eq "round"} {	if ($turns -eq 2) {
+										$turns -= determineRearm($ship, $zone)
+									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									$turns -= 1
+									write-host "bot decides to fire roundshot"
+									$dmg = $ship.dmgRound($zone, $dis); break}
+				{$_ -eq "grape"} {	if ($turns -eq 2) {
+										$turns -= determineRearm($ship, $zone)
+									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									$turns -= 1
+									write-host "bot decides to fire roundshot"
+									$dmg = $ship.dmgGrape($zone, $dis); break}
+				{$_ -eq "board"} {	if ($turns -eq 2) {
+										$turns -= determineMove($ship, $zone)
+									} elseif ($ship.Health[0+($z*4)] -eq 0) {
+										break;
+									}
+									$turns -= 1
+									write-host "bot decides to board"
+									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
+									addDmg($Dship, $dmg, $zone, $ship)
+									$dmg = 0,0,0,0; break}
+				{$_ -eq "sail"} {	$turns -= 1
+									write-host "bot decides to sail"
+									$dis = $ship.sail
 			}
+			
+			addDmg($Dship, $dmg, $zone, $ship)
 		}
-		if ($i -gt 200) {
+		if ($i -gt 1000) {
+			write-host "bot decides to wait for the rest of the turn"
+			
 			break;
 		}
 	}
+	
+	return $dis
 }
