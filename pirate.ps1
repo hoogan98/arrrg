@@ -94,13 +94,7 @@ if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
 	write-host
 }
 #	BOT FUNCTIONS
-$wants = "","","","","","","","","","","","","","","","","","","","","",""
-
-function clearWants() {
-	$wants = "","","","","","","","","","","","","","","","","","","","","",""
-}
-
-function checkStatus($mShip, $eShip, $dis) {
+function checkStatus($mShip, $eShip, $dis, $wants) {
 	$i = 0;
 	#enemy crew check
 	$c1 = $eShip.Health[0];
@@ -233,10 +227,12 @@ function checkStatus($mShip, $eShip, $dis) {
 		$wants[$i] = "flameS"
 		$i++
 	}
+	write-host $wants
+	return $wants
 }
 
 function determineRearm($ship, $z) {
-	$cur = $ship.Health(2 + (4*$z))
+	$cur = $ship.Health[2 + (4*$z)]
 	
 	if ($cur -ge 11) {
 		return 0
@@ -246,8 +242,8 @@ function determineRearm($ship, $z) {
 	$other[$z] = 0
 	$max = 0;
 	$pullZone = -1;
-	for ($i = 0; $i -lt 3; i++) {
-		if (other[$i] -eq 0) {
+	for ($i = 0; $i -lt 3; $i++) {
+		if ($other[$i] -eq 0) {
 			continue;
 		} elseif ($ship.Health[2+(4*$i)] -gt $max) {
 			$max = $ship.Health[2+(4*$i)]
@@ -324,7 +320,7 @@ function transZone($zone) {
 	}
 }
 
-function decide($ship, $Dship, $dis) {
+function decide($ship, $Dship, $dis, $wants) {
 	$turns = 2;
 	$fired = 4;
 	$i = 0
@@ -332,9 +328,8 @@ function decide($ship, $Dship, $dis) {
 	while ($turns -gt 0) {
 		$i++
 		$rand = Get-Random -Minimum 0 -Maximum 100
-		write-host $rand
 		if ($rand -gt 90) {
-			$str = $wanted[$i % 22]
+			$str = $wants[$i % 22]
 			if ($str -eq "") {
 				continue;
 			}
@@ -346,7 +341,11 @@ function decide($ship, $Dship, $dis) {
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
+									if ($zone -eq $fired) {
+										break;
+									}
 									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to fire chainshot"
 									$dmg = $ship.dmgChain($zone, $dis); break}
 				{$_ -eq "round"} {	if ($turns -eq 2) {
@@ -354,7 +353,11 @@ function decide($ship, $Dship, $dis) {
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
+									if ($zone -eq $fired) {
+										break;
+									}
 									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to fire roundshot"
 									$dmg = $ship.dmgRound($zone, $dis); break}
 				{$_ -eq "grape"} {	if ($turns -eq 2) {
@@ -362,7 +365,11 @@ function decide($ship, $Dship, $dis) {
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
+									if ($zone -eq $fired) {
+										break;
+									}
 									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to fire roundshot"
 									$dmg = $ship.dmgGrape($zone, $dis); break}
 				{$_ -eq "board"} {	if ($turns -eq 2) {
@@ -370,7 +377,11 @@ function decide($ship, $Dship, $dis) {
 									} elseif ($ship.Health[0+($z*4)] -eq 0) {
 										break;
 									}
+									if ($zone -eq $fired) {
+										break;
+									}
 									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to board"
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
@@ -378,10 +389,18 @@ function decide($ship, $Dship, $dis) {
 				{$_ -eq "sail"} {	$turns -= 1
 									write-host "bot decides to sail"
 									$dis = $ship.sail($zone, $dis); break}
-				{$_ -eq "brace"} {	$turns -= 1
+				{$_ -eq "brace"} {	if ($zone -eq $fired) {
+										break;
+									}
+									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to brace"
 									defBoard $ship; break}
-			{$_ -eq "retreat"} {	$turns -= 1
+			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
+										break;
+									}
+									$turns -= 1
+									$fired = $zone
 									write-host "bot decides to retreat"
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
@@ -393,8 +412,8 @@ function decide($ship, $Dship, $dis) {
 									moveToMin $Dship $zone
 									break}
 			}
-			
 			addDmg $Dship $dmg $zone $ship
+			$dmg = 0,0,0,0
 		}
 		if ($i -gt 1000) {
 			write-host "bot decides to wait for the rest of the turn"
@@ -405,7 +424,6 @@ function decide($ship, $Dship, $dis) {
 	
 	return $dis
 }
-
 
 #	SYSTEM FUNCTIONS
 #print out the damage report
@@ -467,23 +485,31 @@ function readZone($s) {
 }
 
 #handles adding float damage values to int number values
-function addDmg($Dship, $dmg, $zone, $HitRate) {
-	write-host $zone
+function addDmg($Dship, $dmg, $zone, $os) {
+	$HitRate = $os.HitRate
 	$z = $zone * 4
 	$state = ($Dship.Defense * $Dship.State[$zone]) + 1
 	$health = $Dship.Health
 	
 	if ($dmg[0] -ne 0) {
-		$health[0+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $HitRate) / $state) -Maximum ($dmg[0] / ($state * $HitRate))) )
+		$d1 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $HitRate) / $state) -Maximum ($dmg[0] / ($state * $HitRate))) ))
+		$health[0+$z] -= $d1
+		write-host "crew dmg: " $d1
 	}
 	if ($dmg[1] -ne 0) {
-		$health[1+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $HitRate) / $state) -Maximum ($dmg[1] / ($state * $HitRate))) )
+		$d2 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $HitRate) / $state) -Maximum ($dmg[1] / ($state * $HitRate))) ))
+		$health[1+$z] -= $d2
+		write-host "boarder dmg: " $d2
 	}
 	if ($dmg[2] -ne 0) {
-		$health[2+$z] -= [math]::Floor( (Get-Random -Minimum (($dmg[2] * $HitRate) / $state) -Maximum ($dmg[2] / ($state * $HitRate))) )
+		$d3 = ([math]::Floor( (Get-Random -Minimum (($dmg[2] * $HitRate) / $state) -Maximum ($dmg[2] / ($state * $HitRate))) ))
+		$health[2+$z] -= $d3
+		write-host "cannon dmg: " $d3
 	}
 	if ($dmg[3] -ne 0) {
-		$health[3+$z] -= [math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $HitRate) / $state) -Maximum ($dmg[3] / ($state * $HitRate))) )
+		$d4 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $HitRate) / $state) -Maximum ($dmg[3] / ($state * $HitRate))) ))
+		$health[3+$z] -= $d4
+		write-host "hull dmg: " $d4
 	}
 }
 
@@ -599,8 +625,6 @@ function checkState($os, $ds) {
 	}
 }
 
-
-
 #defending from boarding
 function defBoard($os, $zone){
 	$os.State[$zone] = 2
@@ -658,10 +682,9 @@ while ($End -eq 0){
 	DamageReport $dis $Oship $Dship
 	
 	if ($cpu2 -eq 1 -and $Oship.Name -eq "bot") {
-		clearWants
-		checkStatus $Oship $Dship $dis
-		$dis = decide $Oship $Dship $dis
-		DamageReport $dis $Oship $Dship
+		$wants = "","","","","","","","","","","","","","","","","","","","","",""
+		$wants = checkStatus $Oship $Dship $dis $wants
+		$dis = decide $Oship $Dship $dis $wants
 	}
 
 	if ($AcNum -eq 1) {
@@ -900,7 +923,7 @@ while ($End -eq 0){
 	{$_ -eq "reference"}	 {$Oship.ref;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
-			{$_ -eq "help"}	 {$Oship.help;
+			{$_ -eq "help"}	 {$Oship.hlp;
 							  $Action[$i] = Read-Host -Prompt "choose a new action";
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
@@ -971,8 +994,8 @@ while ($End -eq 0){
 							  }
 							  defBoard $Oship $zone; break}
 		}
-		
-		addDmg $Dship $dmg $zone $Oship.HitRate
+		addDmg $Dship $dmg $zone $Oship
+		$dmg = 0,0,0,0
 	}
 	
 	skirmish $Oship $Dship
