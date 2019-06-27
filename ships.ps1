@@ -176,7 +176,7 @@ function makeRegularShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Standard Ship:"
 			write-host "The average all-rounder ship. Comes with no particular strengths or weaknesses." 
 			write-host "Actions:"
@@ -204,6 +204,7 @@ function makeRegularShip() {
 		Export-ModuleMember -Variable MissRate
 		Export-ModuleMember -Variable Defense
 		Export-ModuleMember -Variable Code
+		Export-ModuleMember -Variable CannonMax
 		Export-ModuleMember -Function fireCount
 		Export-ModuleMember -Function dmgRound
 		Export-ModuleMember -Function dmgChain
@@ -213,7 +214,7 @@ function makeRegularShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
@@ -380,7 +381,7 @@ function makeRammingShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'ram', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Ramming Ship:"
 			write-host "The bow has been modified to ram enemy ships, with a thicker hull but no cannon ports and less room for crew"
 			write-host "If you are at distance 1, you can ram the enemy for massive hull damage"
@@ -439,7 +440,7 @@ function makeRammingShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function dmgRam
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
@@ -592,7 +593,7 @@ function makeUndeadShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'resurrect', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Undead Ship:"
 			write-host "The crew of this vessel are pulled straight from the bottom of the sea, and are expendable"
 			write-host "Unfortunately their life force is tied to a cursed amulet on the ship, meaning they can never leave"
@@ -639,7 +640,7 @@ function makeUndeadShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function resurrect
 		Export-ModuleMember -Function ref
@@ -771,7 +772,7 @@ function makeVikingShip() {
 			write-host "choose from: 'wait', 'board', 'move', 'retreat', 'repair', 'flame', 'brace', 'sail', 'arrows', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Viking Ship:"
 			write-host "I know these guys are from a different time but they're just so cool I couldn't resist"
 			write-host "The Viking longship is not nearly as heavily armored as other ships, watch your hull health"
@@ -822,7 +823,7 @@ function makeVikingShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function dmgArrows
 		Export-ModuleMember -Function ref
@@ -1015,7 +1016,7 @@ function makeCursedShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Cursed Ship:"
 			write-host "Nicknamed the 'lucky_13', the captain of this vessel bewitched the cannons"
 			write-host "It backfired, however, and the cannons have a chance to either deal massive damage or none at all"
@@ -1054,7 +1055,7 @@ function makeCursedShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
@@ -1231,7 +1232,7 @@ function makeTurtleShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'guard', or 'help'"
 		}
 		
-		function help() {
+		function hlp() {
 			write-host "Turtle Ship:"
 			write-host "The thiccest boat on the seven seas, with a near-impenetrable hull and defensive measures that can ward off any cannon fire"
 			write-host "The designers of the ship did not intend on it moving, however, and it changes course so slowly that it cannot move in combat"
@@ -1271,7 +1272,7 @@ function makeTurtleShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function help
+		Export-ModuleMember -Function hlp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
