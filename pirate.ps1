@@ -12,6 +12,8 @@
 # maginot ship: 45 guns and crew in mid, literally nothing on the bow or stern. Impenetrable defense, non?
 # officer ship: few but really experienced crew
 
+#make sure the bot doesn't grape if there are less than five cannons total or none in a zone
+
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
 $turnLoc = ".\turn.txt"
