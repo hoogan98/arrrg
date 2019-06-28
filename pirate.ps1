@@ -12,12 +12,6 @@
 # maginot ship: 45 guns and crew in mid, literally nothing on the bow or stern. Impenetrable defense, non?
 # officer ship: few but really experienced crew
 
-#make sure the bot doesn't grape if there are less than five cannons total or none in a zone
-#bring down grapeshot damage to crew
-#add in checks for ghost ship to ensure you don't board
-#add in checks to ensure you stay away from distance 1 of the ramming ship 
-# only chain the ghost ship if its crew is below 5
-
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
 $turnLoc = ".\turn.txt"
@@ -115,18 +109,23 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 	$ca1 = $eShip.Health[2];
 	$ca2 = $eShip.Health[6];
 	$ca3 = $eShip.Health[10];
+	#crew count
+	$ec = $eShip.Health[0] + $eShip.Health[4] + $eShip.Health[8];
+	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8];
 	if ($mcannon -ge 10) {
-		if ($c1 -ge $c2 -and $c1 -ge $c3) {
-			$wants[$i] = "chainB";
-			$i++;
-		}
-		if ($c2 -ge $c1 -and $c2 -ge $c3) {
-			$wants[$i] = "chainM";
-			$i++;
-		}
-		if ($c3 -ge $c1 -and $c3 -ge $c2) {
-			$wants[$i] = "chainS";
-			$i++;
+		if (!($eShip.Code -eq 2 -and $mc -gt ($ec * 1.3))) {
+			if ($c1 -ge $c2 -and $c1 -ge $c3) {
+				$wants[$i] = "chainB";
+				$i++;
+			}
+			if ($c2 -ge $c1 -and $c2 -ge $c3) {
+				$wants[$i] = "chainM";
+				$i++;
+			}
+			if ($c3 -ge $c1 -and $c3 -ge $c2) {
+				$wants[$i] = "chainS";
+				$i++;
+			}
 		}
 
 		if ($h1 -le $h2 -and $h1 -le $h3) {
@@ -141,23 +140,23 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 			$wants[$i] = "roundS";
 			$i++;
 		}
-
-		if ($ca1 -ge $ca2 -and $ca1 -ge $ca3) {
-			$wants[$i] = "grapeB";
-			$i++;
-		}
-		if ($ca2 -ge $ca1 -and $ca2 -ge $ca3) {
-			$wants[$i] = "grapeM";
-			$i++;
-		}
-		if ($ca3 -ge $ca1 -and $ca3 -ge $ca2) {
-			$wants[$i] = "grapeS";
-			$i++;
+		
+		if (!(($ca1 + $ca2 + $ca3) -lt 6)) {
+			if ($ca1 -ge $ca2 -and $ca1 -ge $ca3) {
+				$wants[$i] = "grapeB";
+				$i++;
+			}
+			if ($ca2 -ge $ca1 -and $ca2 -ge $ca3) {
+				$wants[$i] = "grapeM";
+				$i++;
+			}
+			if ($ca3 -ge $ca1 -and $ca3 -ge $ca2) {
+				$wants[$i] = "grapeS";
+				$i++;
+			}
 		}
 	}
 	#boarding and sailing check
-	$ec = $eShip.Health[0] + $eShip.Health[4] + $eShip.Health[8];
-	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8];
 	if ($mc -ge ($ec * 1.3) -or $mcannon -le 10) {
 		if ($dis -eq 0 -and $eShip.Code -ne 3) {
 			if ($c1 -le $c2 -and $c1 -le $c3) {
@@ -177,9 +176,14 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 			$i++;
 		}
 		
-	} elseif (($ec -ge ($mc * 1.3) -or $eShip.Code -eq 3) -and $dis -lt 4) {
+	} elseif (($ec -ge ($mc * 1.3) -or $eShip.Code -eq 3) -and $dis -lt 4 -and $eShip.Code -ne 2) {
 		$wants[$i] = "sailP"
 		$i++;
+	}
+	#ramming ship check
+	if (($dis -eq 2 -or $dis -eq 1) -and $eShip.Code -eq 1) {
+		$wants[$i] = "sailP"
+		$i++
 	}
 	#brace check
 	if ($dis -eq 0) {
