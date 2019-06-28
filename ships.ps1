@@ -18,7 +18,7 @@ function makeRegularShip() {
 		
 		#moving cannons
 		function reArm($zone1, $zone2, $amnt) {
-			if ((Health[2+($zone2*4)] + $amnt) -gt 15) {
+			if (($Health[2+($zone2*4)] + $amnt) -gt 15) {
 				return -1
 			}
 			
@@ -463,7 +463,7 @@ function makeUndeadShip() {
 		
 		#moving cannons
 		function reArm($zone1, $zone2, $amnt) {
-			if ((Health[2+($zone2*4)] + $amnt) -gt 15) {
+			if (($Health[2+($zone2*4)] + $amnt) -gt 15) {
 				return -1
 			}
 			
