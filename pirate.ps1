@@ -69,7 +69,7 @@ $p1Ship = readShip($Name1)
 
 if ($tutorial -eq "y" -or $tutorial -eq "yes") {
 	$cpu2 = 1
-	$Name2 = "bot"
+	$Name2 = "rob"
 } else {
 	$Name2 = Read-Host -Prompt "Input name for p2's ship"
 }
@@ -272,7 +272,7 @@ function determineRearm($ship, $z) {
 	}
 	
 	$ship.reArm($pullZone, $z, $amnt)
-	write-host "bot decides to rearm"
+	write-host "rob decides to rearm"
 	return 1
 }
 
@@ -298,7 +298,7 @@ function determineMove($ship, $z) {
 	}
 	
 	crewMove $ship.Health $ship.Health 0 $amnt $pullZone $z
-	write-host "bot decides to move crew"
+	write-host "rob decides to move crew"
 	return 1
 }
 
@@ -318,7 +318,7 @@ function moveToMin($ship, $zone) {
 		}
 	}
 	
-	write-host "bot decides to move"
+	write-host "rob decides to move"
 	crewMove $ship.Health $ship.Health 1 $amnt $zone $newZone
 }
 
@@ -399,7 +399,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire chainshot " $zone
+									write-host "rob decides to fire chainshot " $zone
 									$dmg = $ship.dmgChain($zone, $dis); break}
 				{$_ -eq "round"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -414,7 +414,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire roundshot " $zone
+									write-host "rob decides to fire roundshot " $zone
 									$dmg = $ship.dmgRound($zone, $dis); break}
 				{$_ -eq "grape"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -429,7 +429,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire grapeshot " $zone
+									write-host "rob decides to fire grapeshot " $zone
 									$dmg = $ship.dmgGrape($zone, $dis); break}
 				{$_ -eq "board"} {	if ($turns -eq 2) {
 										$num = (determineMove $ship $zone)
@@ -444,12 +444,12 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to board " $zone
+									write-host "rob decides to board " $zone
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
 									$dmg = 0,0,0,0; break}
 				{$_ -eq "sail"} {	$turns -= 1
-									write-host "bot decides to sail " $zone
+									write-host "rob decides to sail " $zone
 									$dis = $ship.sail($zone, $dis)
 									if ($dis -eq 0 -and $turns -gt 0) {
 										$c1 = $Dship.Health[0];
@@ -470,20 +470,20 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to brace " $zone
+									write-host "rob decides to brace " $zone
 									defBoard $ship $zone; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to retreat " $zone
+									write-host "rob decides to retreat " $zone
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
 										break;
 									}
 									$turns -= 2
-									write-host "bot decides to start a fire " $zone
+									write-host "rob decides to start a fire " $zone
 									$Dship.State[$zone] = -1
 									moveToMin $Dship $zone
 									break}
@@ -492,7 +492,7 @@ function decide($ship, $Dship, $dis, $wants) {
 			$dmg = 0,0,0,0
 		}
 		if ($i -gt 1000) {
-			write-host "bot decides to wait for the rest of the turn"
+			write-host "rob decides to wait for the rest of the turn"
 			
 			break;
 		}
@@ -761,7 +761,7 @@ while ($End -eq 0){
 
 	DamageReport $dis $Oship $Dship
 	
-	if ($cpu2 -eq 1 -and $Oship.Name -eq "bot") {
+	if ($cpu2 -eq 1 -and $Oship.Name -eq "rob") {
 		$wants = "","","","","","","","","","","","","","","","","","","","","",""
 		$wants = checkStatus $Oship $Dship $dis $wants $Abandoned
 		$dis = decide $Oship $Dship $dis $wants
@@ -778,7 +778,7 @@ while ($End -eq 0){
 	}
 	
 	for($j = 0; $j -lt $AcNum; $j++) {
-		if ($cpu2 -eq 1 -and $Oship.Name -eq "bot") {
+		if ($cpu2 -eq 1 -and $Oship.Name -eq "rob") {
 			continue;
 		}
 		$ac = $j + 1
@@ -787,7 +787,7 @@ while ($End -eq 0){
 	$fired = -1
 	
 	for($i = 0; $i -lt $AcNum; $i++) {
-		if ($cpu2 -eq 1 -and $Oship.Name -eq "bot") {
+		if ($cpu2 -eq 1 -and $Oship.Name -eq "rob") {
 			continue;
 		}
 		$zone = 0;
