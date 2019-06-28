@@ -96,59 +96,64 @@ if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
 #	BOT FUNCTIONS
 function checkStatus($mShip, $eShip, $dis, $wants) {
 	$i = 0;
+	$mcannon = $mShip.Health[2] + $mShip.Health[6] + $mShip.Health[10];
 	#enemy crew check
 	$c1 = $eShip.Health[0];
 	$c2 = $eShip.Health[4];
 	$c3 = $eShip.Health[8];
-	if ($c1 -ge $c2 -and $c1 -ge $c3) {
-		$wants[$i] = "chainB";
-		$i++;
-	}
-	if ($c2 -ge $c1 -and $c2 -ge $c3) {
-		$wants[$i] = "chainM";
-		$i++;
-	}
-	if ($c3 -ge $c1 -and $c3 -ge $c2) {
-		$wants[$i] = "chainS";
-		$i++;
-	}
 	#enemy hull check
 	$h1 = $eShip.Health[3];
 	$h2 = $eShip.Health[7];
 	$h3 = $eShip.Health[11];
-	if ($h1 -le $h2 -and $h1 -le $h3) {
-		$wants[$i] = "roundB";
-		$i++;
-	}
-	if ($h2 -le $h1 -and $h2 -le $h3) {
-		$wants[$i] = "roundM";
-		$i++;
-	}
-	if ($h3 -le $h2 -and $h3 -le $h1) {
-		$wants[$i] = "roundS";
-		$i++;
-	}
 	#enemy cannon check
 	$ca1 = $eShip.Health[2];
 	$ca2 = $eShip.Health[6];
 	$ca3 = $eShip.Health[10];
-	if ($ca1 -ge $ca2 -and $ca1 -ge $ca3) {
-		$wants[$i] = "grapeB";
-		$i++;
-	}
-	if ($ca2 -ge $ca1 -and $ca2 -ge $ca3) {
-		$wants[$i] = "grapeM";
-		$i++;
-	}
-	if ($ca3 -ge $ca1 -and $ca3 -ge $ca2) {
-		$wants[$i] = "grapeS";
-		$i++;
+	if ($mcannon -ge 10) {
+		if ($c1 -ge $c2 -and $c1 -ge $c3) {
+			$wants[$i] = "chainB";
+			$i++;
+		}
+		if ($c2 -ge $c1 -and $c2 -ge $c3) {
+			$wants[$i] = "chainM";
+			$i++;
+		}
+		if ($c3 -ge $c1 -and $c3 -ge $c2) {
+			$wants[$i] = "chainS";
+			$i++;
+		}
+
+		if ($h1 -le $h2 -and $h1 -le $h3) {
+			$wants[$i] = "roundB";
+			$i++;
+		}
+		if ($h2 -le $h1 -and $h2 -le $h3) {
+			$wants[$i] = "roundM";
+			$i++;
+		}
+		if ($h3 -le $h2 -and $h3 -le $h1) {
+			$wants[$i] = "roundS";
+			$i++;
+		}
+
+		if ($ca1 -ge $ca2 -and $ca1 -ge $ca3) {
+			$wants[$i] = "grapeB";
+			$i++;
+		}
+		if ($ca2 -ge $ca1 -and $ca2 -ge $ca3) {
+			$wants[$i] = "grapeM";
+			$i++;
+		}
+		if ($ca3 -ge $ca1 -and $ca3 -ge $ca2) {
+			$wants[$i] = "grapeS";
+			$i++;
+		}
 	}
 	#boarding and sailing check
 	$ec = $eShip.Health[0] + $eShip.Health[4] + $eShip.Health[8];
 	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8];
-	if ($mc -ge ($ec * 1.5)) {
-		if ($dis -eq 0) {
+	if ($mc -ge ($ec * 1.3) -or $mcannon -le 10) {
+		if ($dis -eq 0 -and $eShip.Code -ne 3) {
 			if ($c1 -le $c2 -and $c1 -le $c3) {
 				$wants[$i] = "boardB";
 				$i++;
@@ -166,19 +171,8 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 			$i++;
 		}
 		
-	} elseif ($ec -ge ($mc * 1.5) -and $dis -lt 4) {
+	} elseif (($ec -ge ($mc * 1.3) -or $eShip.Code -eq 3) -and $dis -lt 4) {
 		$wants[$i] = "sailP"
-		$i++;
-	}
-	#repair check
-	if ($mShip.State[0] -lt 0) {
-		$wants[$i] = "repairB"
-		$i++;
-	} elseif ($mShip.State[1] -lt 0) {
-		$wants[$i] = "repairM"
-		$i++;
-	} elseif ($mShip.State[2] -lt 0) {
-		$wants[$i] = "repairS"
 		$i++;
 	}
 	#brace check
@@ -186,10 +180,10 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 		if ($mShip.Health[3] -lt 25 -or $c1 -ge 30) {
 			$wants[$i] = "braceB"
 			$i++
-		} elseif ($mShip.Health[7] -lt 25 -or $c2 -ge 30) {
+		} if ($mShip.Health[7] -lt 25 -or $c2 -ge 30) {
 			$wants[$i] = "braceM"
 			$i++
-		} elseif ($mShip.Health[11] -lt 25 -or $c3 -ge 30) {
+		} if ($mShip.Health[11] -lt 25 -or $c3 -ge 30) {
 			$wants[$i] = "braceS"
 			$i++
 		}
@@ -235,7 +229,7 @@ function determineRearm($ship, $z) {
 	$cur = $ship.Health[2 + (4*$z)]
 	
 	if ($cur -ge 11) {
-		return 0
+		return
 	}
 	
 	$other = 1,1,1
@@ -246,15 +240,15 @@ function determineRearm($ship, $z) {
 		if ($other[$i] -eq 0) {
 			continue;
 		} elseif ($ship.Health[2+(4*$i)] -gt $max) {
-			$max = $ship.Health[2+(4*$i)]
-			$pullZone = $i
+			$max = $ship.Health[2+(4*$i)];
+			$pullZone = $i;
 		}
 	}
 	
 	$amnt = $max
 	
 	if ($max -eq 0) {
-		return 0
+		return
 	} elseif (($max + $cur) -gt $ship.CannonMax[$pullZone]) {
 		$amnt = $ship.CannonMax[$pullZone] - $cur
 	}
@@ -265,7 +259,7 @@ function determineRearm($ship, $z) {
 }
 
 function determineMove($ship, $z) {
-	$cur = $ship.Health(0 + (4*$z))
+	$cur = $ship.Health[0 + (4*$z)]
 	$other = 1,1,1
 	$other[$z] = 0
 	$max = 0;
@@ -282,7 +276,7 @@ function determineMove($ship, $z) {
 	$amnt = $max
 	
 	if ($max -eq 0) {
-		return 0
+		return;
 	}
 	
 	crewMove $ship.Health $ship.Health 0 $amnt $pullZone $z
@@ -324,20 +318,61 @@ function decide($ship, $Dship, $dis, $wants) {
 	$turns = 2;
 	$fired = 4;
 	$i = 0
+	$k = 0
 	$dmg = 0,0,0,0
 	while ($turns -gt 0) {
 		$i++
+		$k++
+		if ($k -gt 21) {
+			$k = 0;
+		}
 		$rand = Get-Random -Minimum 0 -Maximum 100
 		if ($rand -gt 90) {
-			$str = $wants[$i % 22]
+			$str = $wants[$k]
 			if ($str -eq "") {
+				if ($ship.Health[1] -gt 0) {
+					$turns--
+					determineMove $ship 0
+				} elseif ($ship.Health[5] -gt 0) {
+					$turns--
+					determineMove $ship 1
+				} elseif ($ship.Health[9] -gt 0) {
+					$turns--
+					determineMove $ship 2
+				}
+				
+				if ($ship.State[0] -lt 0) {
+					$turns--
+					if ($ship.Health[0] -eq 0) {
+						determineMove $ship 0
+					} else {
+						$ship.Rebuild(0)
+					}
+				} elseif ($ship.State[1] -lt 0) {
+					$turns--
+					if ($ship.Health[4] -eq 0) {
+						determineMove $ship 1
+					} else {
+						$ship.Rebuild(1)
+					}
+				} elseif ($ship.State[2] -lt 0) {
+					$turns--
+					if ($ship.Health[8] -eq 0) {
+						determineMove $ship 2
+					} else {
+						$ship.Rebuild(2)
+					}
+				}
 				continue;
 			}
 			$comm = $str.Substring(0, $str.length - 1)
 			$zone = transZone $str.Substring($str.length - 1, 1) 
 			switch ($comm) {
 				{$_ -eq "chain"} {	if ($turns -eq 2) {
-										$turns -= determineRearm $ship $zone
+										$num = (determineRearm $ship $zone)
+										if (! ($num -eq $null)) {
+											$turns--;
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
@@ -346,10 +381,13 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire chainshot"
+									write-host "bot decides to fire chainshot " $zone
 									$dmg = $ship.dmgChain($zone, $dis); break}
 				{$_ -eq "round"} {	if ($turns -eq 2) {
-										$turns -= determineRearm $ship $zone
+										$num = (determineRearm $ship $zone)
+										if (! ($num -eq $null)) {
+											$turns--;
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
@@ -358,10 +396,13 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire roundshot"
+									write-host "bot decides to fire roundshot " $zone
 									$dmg = $ship.dmgRound($zone, $dis); break}
 				{$_ -eq "grape"} {	if ($turns -eq 2) {
-										$turns -= determineRearm $ship $zone
+										$num = (determineRearm $ship $zone)
+										if (! ($num -eq $null)) {
+											$turns--;
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
 									}
@@ -370,10 +411,13 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to fire roundshot"
+									write-host "bot decides to fire grapeshot " $zone
 									$dmg = $ship.dmgGrape($zone, $dis); break}
 				{$_ -eq "board"} {	if ($turns -eq 2) {
-										$turns -= determineMove $ship $zone
+										$num = (determineMove $ship $zone)
+										if (! ($num -eq $null)) {
+											$turns--;
+										}
 									} elseif ($ship.Health[0+($z*4)] -eq 0) {
 										break;
 									}
@@ -382,32 +426,46 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to board"
+									write-host "bot decides to board " $zone
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
 									$dmg = 0,0,0,0; break}
 				{$_ -eq "sail"} {	$turns -= 1
-									write-host "bot decides to sail"
-									$dis = $ship.sail($zone, $dis); break}
+									write-host "bot decides to sail " $zone
+									$dis = $ship.sail($zone, $dis)
+									if ($dis -eq 0 -and $turns -gt 0) {
+										$c1 = $Dship.Health[0];
+										$c2 = $Dship.Health[4];
+										$c3 = $Dship.Health[8];
+										if ($c1 -le $c2 -and $c1 -le $c3) {
+											$wants[$k] = "boardB";
+										}
+										if ($c2 -le $c1 -and $c2 -le $c3) {
+											$wants[$k] = "boardM";
+										}
+										if ($c3 -le $c1 -and $c3 -le $c2) {
+											$wants[$k] = "boardS";
+										}
+									}; break}
 				{$_ -eq "brace"} {	if ($zone -eq $fired) {
 										break;
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to brace"
+									write-host "bot decides to brace " $zone
 									defBoard $ship; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "bot decides to retreat"
+									write-host "bot decides to retreat " $zone
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
 										break;
 									}
 									$turns -= 2
-									write-host "bot decides to start a fire"
+									write-host "bot decides to start a fire " $zone
 									$Dship.State[$zone] = -1
 									moveToMin $Dship $zone
 									break}
