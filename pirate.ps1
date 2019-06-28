@@ -17,6 +17,8 @@
 $turnLoc = ".\turn.txt"
 # It's really in your best interest to just keep everything in its current place
 
+#make the bot handle abandon ship scenarios (both yours sinking and his sinking)
+
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
 if ($tutorial -eq "n" -or $tutorial -eq "no") {
@@ -94,8 +96,9 @@ if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
 	write-host
 }
 #	BOT FUNCTIONS
-function checkStatus($mShip, $eShip, $dis, $wants) {
+function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 	$i = 0;
+	$a = 0;
 	$mcannon = $mShip.Health[2] + $mShip.Health[6] + $mShip.Health[10];
 	#enemy crew check
 	$c1 = $eShip.Health[0];
@@ -112,7 +115,12 @@ function checkStatus($mShip, $eShip, $dis, $wants) {
 	#crew count
 	$ec = $eShip.Health[0] + $eShip.Health[4] + $eShip.Health[8];
 	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8];
-	if ($mcannon -ge 10) {
+	
+	if ($abandoned -ne 0 -and $mc -eq 0) {
+		$a = 1
+	}
+	#carry on wayward son
+	if ($mcannon -ge 10 -and $a -ne 1) {
 		if (!($eShip.Code -eq 2 -and $mc -gt ($ec * 1.3))) {
 			if ($c1 -ge $c2 -and $c1 -ge $c3) {
 				$wants[$i] = "chainB";
@@ -274,7 +282,7 @@ function determineMove($ship, $z) {
 	$other[$z] = 0
 	$max = 0;
 	$pullZone = -1;
-	for ($i = 0; $i -lt 3; i++) {
+	for ($i = 0; $i -lt 3; $i++) {
 		if (other[$i] -eq 0) {
 			continue;
 		} elseif ($ship.Health[4*$i] -gt $max) {
@@ -463,7 +471,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									write-host "bot decides to brace " $zone
-									defBoard $ship; break}
+									defBoard $ship $zone; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
 									}
@@ -556,26 +564,30 @@ function readZone($s) {
 function addDmg($Dship, $dmg, $zone, $os) {
 	$HitRate = $os.HitRate
 	$z = $zone * 4
-	$state = ($Dship.Defense * $Dship.State[$zone]) + 1
+	$s = $Dship.State[$zone]
+	if ($s -lt 0) {
+		$s = 0
+	}
+	$state = ($Dship.Defense * $s) + 1
 	$health = $Dship.Health
 	
 	if ($dmg[0] -ne 0) {
-		$d1 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $HitRate) / $state) -Maximum ($dmg[0] / ($state * $HitRate))) ))
+		$d1 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $HitRate) / $state) -Maximum (($dmg[0] * (1+$HitRate)) / $state) )))
 		$health[0+$z] -= $d1
 		write-host "crew dmg: " $d1
 	}
 	if ($dmg[1] -ne 0) {
-		$d2 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $HitRate) / $state) -Maximum ($dmg[1] / ($state * $HitRate))) ))
+		$d2 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $HitRate) / $state) -Maximum (($dmg[1] * (1+$HitRate)) / $state)) ))
 		$health[1+$z] -= $d2
 		write-host "boarder dmg: " $d2
 	}
 	if ($dmg[2] -ne 0) {
-		$d3 = ([math]::Floor( (Get-Random -Minimum (($dmg[2] * $HitRate) / $state) -Maximum ($dmg[2] / ($state * $HitRate))) ))
+		$d3 = ([math]::Floor( (Get-Random -Minimum (($dmg[2] * $HitRate) / $state) -Maximum (($dmg[2] * (1+$HitRate)) / $state)) ))
 		$health[2+$z] -= $d3
 		write-host "cannon dmg: " $d3
 	}
 	if ($dmg[3] -ne 0) {
-		$d4 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $HitRate) / $state) -Maximum ($dmg[3] / ($state * $HitRate))) ))
+		$d4 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $HitRate) / $state) -Maximum (($dmg[3] * (1+$HitRate)) / $state))) )
 		$health[3+$z] -= $d4
 		write-host "hull dmg: " $d4
 	}
@@ -751,7 +763,7 @@ while ($End -eq 0){
 	
 	if ($cpu2 -eq 1 -and $Oship.Name -eq "bot") {
 		$wants = "","","","","","","","","","","","","","","","","","","","","",""
-		$wants = checkStatus $Oship $Dship $dis $wants
+		$wants = checkStatus $Oship $Dship $dis $wants $Abandoned
 		$dis = decide $Oship $Dship $dis $wants
 	}
 
