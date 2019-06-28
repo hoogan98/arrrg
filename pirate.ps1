@@ -14,6 +14,8 @@
 
 #make sure the bot doesn't grape if there are less than five cannons total or none in a zone
 #bring down grapeshot damage to crew
+#add in checks for ghost ship to ensure you don't board
+#add in checks to ensure you stay away from distance 1 of the ramming ship 
 
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
