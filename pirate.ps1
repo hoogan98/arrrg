@@ -13,6 +13,7 @@
 # officer ship: few but really experienced crew
 
 #make sure the bot doesn't grape if there are less than five cannons total or none in a zone
+#bring down grapeshot damage to crew
 
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
