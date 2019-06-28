@@ -16,6 +16,7 @@
 #bring down grapeshot damage to crew
 #add in checks for ghost ship to ensure you don't board
 #add in checks to ensure you stay away from distance 1 of the ramming ship 
+# only chain the ghost ship if its crew is below 5
 
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
