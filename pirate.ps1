@@ -112,7 +112,7 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 	$ca3 = $eShip.Health[10];
 	#crew count
 	$ec = $eShip.Health[0] + $eShip.Health[4] + $eShip.Health[8];
-	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8];
+	$mc = $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] + $eShip.Health[1] + $eShip.Health[5] + $eShip.Health[9];
 	#boarder count
 	$b1 = $eShip.Health[1]
 	$b2 = $eShip.Health[5]
@@ -169,7 +169,7 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 			}
 		}
 		#boarding and sailing check
-		if ($mc -ge ($ec * 1.3) -or $mcannon -le 10) {
+		if (($mc -ge ($ec * 1.3) -or $mcannon -le 10) -and $eShip.Code -ne 2) {
 			if ($dis -eq 0 -and $eShip.Code -ne 3) {
 				if ($c1 -le $c2 -and $c1 -le $c3) {
 					$wants[$i] = "boardB";
@@ -257,10 +257,11 @@ function determineRearm($ship, $z) {
 	$max = 0;
 	$pullZone = -1;
 	for ($i = 0; $i -lt 3; $i++) {
+		$m = [math]::min($ship.Health[2+(4*$i)], $ship.Health[0+(4*$i)])
 		if ($other[$i] -eq 0) {
 			continue;
-		} elseif ($ship.Health[2+(4*$i)] -gt $max) {
-			$max = $ship.Health[2+(4*$i)];
+		} elseif ($m -gt $max) {
+			$max = $m;
 			$pullZone = $i;
 		}
 	}
@@ -393,7 +394,14 @@ function decide($ship, $Dship, $dis, $wants) {
 										if (! ($num -eq $null)) {
 											$turns--;
 										}
+										if ($ship.Health[0+($z*4)] -eq 0) {
+											determineMove $ship $z
+											$turns--
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									if ($ship.Health[0+($z*4)] -eq 0) {
 										break;
 									}
 									if ($zone -eq $fired) {
@@ -408,7 +416,14 @@ function decide($ship, $Dship, $dis, $wants) {
 										if (! ($num -eq $null)) {
 											$turns--;
 										}
+										if ($ship.Health[0+($z*4)] -eq 0) {
+											determineMove $ship $z
+											$turns--
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									if ($ship.Health[0+($z*4)] -eq 0) {
 										break;
 									}
 									if ($zone -eq $fired) {
@@ -423,7 +438,14 @@ function decide($ship, $Dship, $dis, $wants) {
 										if (! ($num -eq $null)) {
 											$turns--;
 										}
+										if ($ship.Health[0+($z*4)] -eq 0) {
+											determineMove $ship $z
+											$turns--
+										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
+										break;
+									}
+									if ($ship.Health[0+($z*4)] -eq 0) {
 										break;
 									}
 									if ($zone -eq $fired) {
@@ -1023,14 +1045,15 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  DamageReport $dis $Oship $Dship; break}
-	{$_ -eq "reference"}	 {$Oship.ref;
-							  $Action[$i] = Read-Host -Prompt "choose a new action";
+	{$_ -eq "reference"}	 {$str = $Oship.ref();
+							  write-host $str
+							  write-Host "choose a new action";
 							  $i--; break}
-			{$_ -eq "help"}	 {$Oship.hlp;
-							  $Action[$i] = Read-Host -Prompt "choose a new action";
+			{$_ -eq "help"}	 {$str = $Oship.halp();
+							  write-host $str
 							  $i--; break}
 			{$_ -eq "wait"}	 {break}
-			default			 {$Action[$i] = Read-Host -Prompt "Action $i not recognized. Try again or type 'reference' for command list";
+			default			 {write-host "Action $i not recognized. Try again or type 'reference' for command list";
 							  $i--; break}
 			{$_ -eq "ram"}	 {$str = Read-Host -Prompt "Choose zone to ram";
 							  $zone = readZone($str)
@@ -1039,11 +1062,11 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 1) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
+								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  if ($dis -ne 1) {
-								$Action[$i] = Read-Host -Prompt "You need to be at distance 1 to ram";
+								write-host "You need to be at distance 1 to ram";
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -1060,7 +1083,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 2) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
+								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  $Oship.resurrect($zone)
@@ -1072,11 +1095,11 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 3) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
+								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  if ($dis -gt 2) {
-								$Action[$i] = Read-Host -Prompt "Your arrows have a range of 2, choose a new action";
+								write-host "Your arrows have a range of 2, choose a new action";
 								$i--; break
 							  }
 							  if ($zone -eq $fired){
@@ -1092,7 +1115,7 @@ while ($End -eq 0){
 								$i--; break
 							  }
 							  if ($Oship.Code -ne 5) {
-								$Action[$i] = Read-Host -Prompt "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
+								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
 							  defBoard $Oship $zone; break}
