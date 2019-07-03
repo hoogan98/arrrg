@@ -173,26 +173,26 @@ function makeRegularShip() {
 		}
 		
 		function ref() {
-			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
+			return "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
-		function hlp() {
-			write-host "Standard Ship:"
-			write-host "The average all-rounder ship. Comes with no particular strengths or weaknesses." 
-			write-host "Actions:"
-			write-host "Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull"
-			write-host "Chain: fire chainshot. Damage: /\crew, \/cannons, --hull"
-			write-host "Round: fire roundshot. Damage: \/crew, /\cannons, --hull"
-			write-host "Wait: skip an action"
-			write-host "Board: board the enemy ship with your crew"
-			write-host "Move: move your crew from one zone to another on a ship"
-			write-host "Retreat: pull back boarders from the opponent's ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
-			write-host "Rearm: order the crew to move cannons from one zone to another"
-			write-host "Flame: order the crew to set fire to a zone"
-			write-host "Brace: reduce incoming damage to a zone on the next turn"
-			write-host "Sail: change the distance between the ships"
-			write-host "Reference: get a quick list of commands to run in case you forget syntax"
+		function halp() {
+			return "Standard Ship:
+The average all-rounder ship. Comes with no particular strengths or weaknesses.
+Actions:
+Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Wait: skip an action
+Board: board the enemy ship with your crew
+Move: move your crew from one zone to another on a ship
+Retreat: pull back boarders from the opponent's ship
+Repair: order the crew to patch the hull in a zone
+Rearm: order the crew to move cannons from one zone to another
+Flame: order the crew to set fire to a zone
+Brace: reduce incoming damage to a zone on the next turn
+Sail: change the distance between the ships
+Reference: get a quick list of commands to run in case you forget syntax"
 		}
 
         Export-ModuleMember -Variable Name
@@ -214,7 +214,7 @@ function makeRegularShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
@@ -378,29 +378,29 @@ function makeRammingShip() {
 		}
 		
 		function ref() {
-			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'ram', or 'help'"
+			return "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'ram', or 'help'"
 		}
 		
-		function hlp() {
-			write-host "Ramming Ship:"
-			write-host "The bow has been modified to ram enemy ships, with a thicker hull but no cannon ports and less room for crew"
-			write-host "If you are at distance 1, you can ram the enemy for massive hull damage"
-			write-host "Notice the mid and stern hulls are weaker, but contain an impressive number of cannon ports"
-			write-host "Actions:"
-			write-host "Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull"
-			write-host "Chain: fire chainshot. Damage: /\crew, \/cannons, --hull"
-			write-host "Round: fire roundshot. Damage: \/crew, /\cannons, --hull"
-			write-host "Wait: skip an action"
-			write-host "Board: board the enemy ship with your crew"
-			write-host "Move: move your crew from one zone to another on a ship"
-			write-host "Retreat: pull back boarders from the opponent's ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
-			write-host "Rearm: order the crew to move cannons from one zone to another"
-			write-host "Flame: order the crew to set fire to a zone"
-			write-host "Brace: reduce incoming damage to a zone on the next turn"
-			write-host "Sail: change the distance between the ships"
-			write-host "Reference: get a quick list of commands to run in case you forget syntax"
-			write-host "Ram: move from distance 1 to 0, charging the enemy ship and dealing high hull damage to one zone"
+		function halp() {
+			return "Ramming Ship:
+The bow has been modified to ram enemy ships, with a thicker hull but no cannon ports and less room for crew
+If you are at distance 1, you can ram the enemy for massive hull damage
+Notice the mid and stern hulls are weaker, but contain an impressive number of cannon ports
+Actions:
+Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Wait: skip an action
+Board: board the enemy ship with your crew
+Move: move your crew from one zone to another on a ship
+Retreat: pull back boarders from the opponent's ship
+Repair: order the crew to patch the hull in a zone
+Rearm: order the crew to move cannons from one zone to another
+Flame: order the crew to set fire to a zone
+Brace: reduce incoming damage to a zone on the next turn
+Sail: change the distance between the ships
+Reference: get a quick list of commands to run in case you forget syntax
+Ram: move from distance 1 to 0, charging the enemy ship and dealing high hull damage to one zone"
 		}
 		
 		function dmgRam() {
@@ -440,7 +440,7 @@ function makeRammingShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function dmgRam
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
@@ -590,27 +590,27 @@ function makeUndeadShip() {
 		}
 		
 		function ref() {
-			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'resurrect', or 'help'"
+			return "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', 'resurrect', or 'help'"
 		}
 		
-		function hlp() {
-			write-host "Undead Ship:"
-			write-host "The crew of this vessel are pulled straight from the bottom of the sea, and are expendable"
-			write-host "Unfortunately their life force is tied to a cursed amulet on the ship, meaning they can never leave"
-			write-host "If you begin to take casualties, you can 'ressurect' your crew to call them back from the depths"
-			write-host "Actions:"
-			write-host "Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull"
-			write-host "Chain: fire chainshot. Damage: /\crew, \/cannons, --hull"
-			write-host "Round: fire roundshot. Damage: \/crew, /\cannons, --hull"
-			write-host "Wait: skip an action"
-			write-host "Move: move your crew from one zone to another on a ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
-			write-host "Rearm: order the crew to move cannons from one zone to another"
-			write-host "Flame: order the crew to set fire to a zone"
-			write-host "Brace: reduce incoming damage to a zone on the next turn"
-			write-host "Sail: change the distance between the ships"
-			write-host "Reference: get a quick list of commands to run in case you forget syntax"
-			write-host "Ressurect: revive some of the dead crew, works best if the crew is around half strength"
+		function halp() {
+			return "Undead Ship:
+The crew of this vessel are pulled straight from the bottom of the sea, and are expendable
+Unfortunately their life force is tied to a cursed amulet on the ship, meaning they can never leave
+If you begin to take casualties, you can 'ressurect' your crew to call them back from the depths
+Actions:
+Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Wait: skip an action
+Move: move your crew from one zone to another on a ship
+Repair: order the crew to patch the hull in a zone
+Rearm: order the crew to move cannons from one zone to another
+Flame: order the crew to set fire to a zone
+Brace: reduce incoming damage to a zone on the next turn
+Sail: change the distance between the ships
+Reference: get a quick list of commands to run in case you forget syntax
+Resurrect: revive some of the dead crew, works best if the crew is around half strength"
 		}
 		
 		function resurrect($zone) {
@@ -640,7 +640,7 @@ function makeUndeadShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function resurrect
 		Export-ModuleMember -Function ref
@@ -736,16 +736,19 @@ function makeVikingShip() {
 		#dmg is returned in an array[crew,cannon,hull]
 		function dmgGrape($z, $Dis) {
 			write-host "vikings do not have access to gunpowder"
+			return 0,0,0,0
 		}
 
 		#damage from roundshot
 		function dmgRound($z, $Dis) {
 			write-host "vikings do not have access to gunpowder"
+			return 0,0,0,0
 		}
 
 		#damage from chainshot
 		function dmgChain($z, $Dis) {
 			write-host "vikings do not have access to gunpowder"
+			return 0,0,0,0
 		}
 
 		#damage from fire
@@ -769,27 +772,27 @@ function makeVikingShip() {
 		}
 		
 		function ref() {
-			write-host "choose from: 'wait', 'board', 'move', 'retreat', 'repair', 'flame', 'brace', 'sail', 'arrows', or 'help'"
+			return "choose from: 'wait', 'board', 'move', 'retreat', 'repair', 'flame', 'brace', 'sail', 'arrows', or 'help'"
 		}
 		
-		function hlp() {
-			write-host "Viking Ship:"
-			write-host "I know these guys are from a different time but they're just so cool I couldn't resist"
-			write-host "The Viking longship is not nearly as heavily armored as other ships, watch your hull health"
-			write-host "The Vikings do not have cannons, but they have bows that can be fired from distance 2 or closer"
-			write-host "Viking crew members are a formidable force, dealing high damage to both crew and structures with above-average defense"
-			write-host "Actions:"
-			write-host "Wait: skip an action"
-			write-host "Board: board the enemy ship with your crew"
-			write-host "Move: move your crew from one zone to another on a ship"
-			write-host "Retreat: pull back boarders from the opponent's ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
-			write-host "Rearm: order the crew to move cannons from one zone to another"
-			write-host "Flame: order the crew to set fire to a zone"
-			write-host "Brace: reduce incoming damage to a zone on the next turn"
-			write-host "Sail: change the distance between the ships"
-			write-host "Reference: get a quick list of commands to run in case you forget syntax"
-			write-host "Arrows: fire a volley of arrows from distance 2 or closer to deal damage to the enemy crew"
+		function halp() {
+			return "Viking Ship:
+I know these guys are from a different time but they're just so cool I couldn't resist
+The Viking longship is not nearly as heavily armored as other ships, watch your hull health
+The Vikings do not have cannons, but they have bows that can be fired from distance 2 or closer
+Viking crew members are a formidable force, dealing high damage to both crew and structures with above-average defense
+Actions:
+Wait: skip an action
+Board: board the enemy ship with your crew
+Move: move your crew from one zone to another on a ship
+Retreat: pull back boarders from the opponent's ship
+Repair: order the crew to patch the hull in a zone
+Rearm: order the crew to move cannons from one zone to another
+Flame: order the crew to set fire to a zone
+Brace: reduce incoming damage to a zone on the next turn
+Sail: change the distance between the ships
+Reference: get a quick list of commands to run in case you forget syntax
+Arrows: fire a volley of arrows from distance 2 or closer to deal damage to the enemy crew"
 		}
 		
 		#range 2, similar to a skirmish in damage. does nothing to hull or cannons
@@ -823,7 +826,7 @@ function makeVikingShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function dmgArrows
 		Export-ModuleMember -Function ref
@@ -1016,7 +1019,7 @@ function makeCursedShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'sail', or 'help'"
 		}
 		
-		function hlp() {
+		function halp() {
 			write-host "Cursed Ship:"
 			write-host "Nicknamed the 'lucky_13', the captain of this vessel bewitched the cannons"
 			write-host "It backfired, however, and the cannons have a chance to either deal massive damage or none at all"
@@ -1055,7 +1058,7 @@ function makeCursedShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
@@ -1232,7 +1235,7 @@ function makeTurtleShip() {
 			write-host "choose from: 'grape', 'chain', 'round', 'wait', 'board', 'move', 'retreat', 'repair', 'rearm', 'flame', 'brace', 'guard', or 'help'"
 		}
 		
-		function hlp() {
+		function halp() {
 			write-host "Turtle Ship:"
 			write-host "The thiccest boat on the seven seas, with a near-impenetrable hull and defensive measures that can ward off any cannon fire"
 			write-host "The designers of the ship did not intend on it moving, however, and it changes course so slowly that it cannot move in combat"
@@ -1272,7 +1275,7 @@ function makeTurtleShip() {
 		Export-ModuleMember -Function rebuild
 		Export-ModuleMember -Function retreat
 		Export-ModuleMember -Function sail
-		Export-ModuleMember -Function hlp
+		Export-ModuleMember -Function halp
 		Export-ModuleMember -Function reArm
 		Export-ModuleMember -Function ref
     }
