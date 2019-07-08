@@ -863,8 +863,8 @@ Arrows: fire a volley of arrows from distance 2 or closer to deal damage to the 
 		#range 2, similar to a skirmish in damage. does nothing to hull or cannons
 		function dmgArrows($zone, $dship, $dis) {
 			$dmg = 0,0,0,0
-			$dmg[0] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * ($CrewDmg + 0.2 - ($dis / 10)))
-			$dmg[1] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * ($CrewDmg + 0.2 - ($dis / 10)))
+			$dmg[0] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * (($CrewDmg + 0.2 - ($dis / 10)) / 2))
+			$dmg[1] = [math]::Ceiling(($Health[0+$z] - $Health[1+$z]) * (($CrewDmg + 0.2 - ($dis / 10)) / 2))
 			if ($dmg[0] -lt 0) {
 				$dmg[0] = 0
 				$dmg[1] = 0
