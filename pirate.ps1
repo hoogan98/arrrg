@@ -553,23 +553,6 @@ function DamageReport($Dis, $os, $ds){
 	write-host "Damage Report:"
     write-host ("{0,-40}  |$Dis|  {1,40}" -f $os.Name, $ds.Name)
 	Start-Sleep -Seconds 1
-	#write-host "                                     Bow"
-	#Start-Sleep -Seconds 1
-	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	#$str = ($os.Health[0..3] -join "         ") + "   |$Dis|  " +  ($ds.Health[0..3] -join "         ")
-	#write-host $str
-	#Start-Sleep -Seconds 1
-	#write-host "                                     Mid"
-	#Start-Sleep -Seconds 1
-	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	#$str = ($os.Health[4..7] -join "         ") + "   |$Dis|  " + ($ds.Health[4..7] -join "         ")
-	#write-host $str
-	#Start-Sleep -Seconds 1
-	#write-host "                                     Stern"
-	#Start-Sleep -Seconds 1
-	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	#$str = ($os.Health[8..11] -join "         ") + "   |$Dis|  " + ($ds.Health[8..11] -join "         ")
-	#write-host $str
 	$names = "Bow", "Mid", "Stern"
 	
 	for ($i = 0; $i -lt 3; $i++) {
