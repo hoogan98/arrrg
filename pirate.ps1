@@ -354,36 +354,33 @@ function decide($ship, $Dship, $dis, $wants) {
 			$str = $wants[$k]
 			if ($str -eq "") {
 				if ($ship.Health[1] -gt 0) {
-					$turns--
-					determineMove $ship 0
+					$turns -= determineMove $ship 0
 				} elseif ($ship.Health[5] -gt 0) {
-					$turns--
-					determineMove $ship 1
+					$turns -= determineMove $ship 1
 				} elseif ($ship.Health[9] -gt 0) {
-					$turns--
-					determineMove $ship 2
+					$turns -= determineMove $ship 2
 				}
 				
 				if ($ship.State[0] -lt 0) {
-					$turns--
 					if ($ship.Health[0] -eq 0) {
-						determineMove $ship 0
+						$turns -= determineMove $ship 0
 					} else {
+						$turns--
 						$ship.Rebuild(0)
 					}
 				} elseif ($ship.State[1] -lt 0) {
-					$turns--
 					if ($ship.Health[4] -eq 0) {
-						determineMove $ship 1
+						$turns -= determineMove $ship 1
 					} else {
+						$turns--
 						$ship.Rebuild(1)
 					}
 				} elseif ($ship.State[2] -lt 0) {
-					$turns--
 					if ($ship.Health[8] -eq 0) {
-						determineMove $ship 2
+						$turns -= determineMove $ship 2
 					} else {
 						$ship.Rebuild(2)
+						$turns--
 					}
 				}
 				continue;
@@ -397,8 +394,7 @@ function decide($ship, $Dship, $dis, $wants) {
 											$turns--;
 										}
 										if ($ship.Health[0+($z*4)] -eq 0) {
-											determineMove $ship $z
-											$turns--
+											$turns -= determineMove $ship $z
 										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
@@ -419,8 +415,7 @@ function decide($ship, $Dship, $dis, $wants) {
 											$turns--;
 										}
 										if ($ship.Health[0+($z*4)] -eq 0) {
-											determineMove $ship $z
-											$turns--
+											$turns -= determineMove $ship $z
 										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
@@ -441,8 +436,7 @@ function decide($ship, $Dship, $dis, $wants) {
 											$turns--;
 										}
 										if ($ship.Health[0+($z*4)] -eq 0) {
-											determineMove $ship $z
-											$turns--
+											$turns -= determineMove $ship $z
 										}
 									} elseif ($ship.Health[2+($z*4)] -eq 0) {
 										break;
@@ -523,7 +517,7 @@ function decide($ship, $Dship, $dis, $wants) {
 			break;
 		}
 	}
-	
+	write-host $dis
 	return $dis
 }
 
