@@ -178,20 +178,35 @@ function makeRegularShip() {
 		
 		function halp() {
 			return "Standard Ship:
+			
 The average all-rounder ship. Comes with no particular strengths or weaknesses.
+
 Actions:
+
 Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+
 Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+
 Wait: skip an action
+
 Board: board the enemy ship with your crew
+
 Move: move your crew from one zone to another on a ship
+
 Retreat: pull back boarders from the opponent's ship
-Repair: order the crew to patch the hull in a zone
+
+Repair: order the crew to patch the hull or put out a fire in a zone
+
 Rearm: order the crew to move cannons from one zone to another
+
 Flame: order the crew to set fire to a zone
+
 Brace: reduce incoming damage to a zone on the next turn
+
 Sail: change the distance between the ships
+
 Reference: get a quick list of commands to run in case you forget syntax"
 		}
 
@@ -383,23 +398,41 @@ function makeRammingShip() {
 		
 		function halp() {
 			return "Ramming Ship:
+			
 The bow has been modified to ram enemy ships, with a thicker hull but no cannon ports and less room for crew
+
 If you are at distance 1, you can ram the enemy for massive hull damage
+
 Notice the mid and stern hulls are weaker, but contain an impressive number of cannon ports
+
 Actions:
+
 Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+
 Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+
 Wait: skip an action
+
 Board: board the enemy ship with your crew
+
 Move: move your crew from one zone to another on a ship
+
 Retreat: pull back boarders from the opponent's ship
-Repair: order the crew to patch the hull in a zone
+
+Repair: order the crew to patch the hull or put out a fire in a zone
+
 Rearm: order the crew to move cannons from one zone to another
+
 Flame: order the crew to set fire to a zone
+
 Brace: reduce incoming damage to a zone on the next turn
+
 Sail: change the distance between the ships
+
 Reference: get a quick list of commands to run in case you forget syntax
+
 Ram: move from distance 1 to 0, charging the enemy ship and dealing high hull damage to one zone"
 		}
 		
@@ -595,21 +628,37 @@ function makeUndeadShip() {
 		
 		function halp() {
 			return "Undead Ship:
+			
 The crew of this vessel are pulled straight from the bottom of the sea, and are expendable
+
 Unfortunately their life force is tied to a cursed amulet on the ship, meaning they can never leave
+
 If you begin to take casualties, you can 'ressurect' your crew to call them back from the depths
+
 Actions:
+
 Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
+
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
+
 Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+
 Wait: skip an action
+
 Move: move your crew from one zone to another on a ship
-Repair: order the crew to patch the hull in a zone
+
+Repair: order the crew to patch the hull or put out a fire in a zone
+
 Rearm: order the crew to move cannons from one zone to another
+
 Flame: order the crew to set fire to a zone
+
 Brace: reduce incoming damage to a zone on the next turn
+
 Sail: change the distance between the ships
+
 Reference: get a quick list of commands to run in case you forget syntax
+
 Resurrect: revive some of the dead crew, works best if the crew is around half strength"
 		}
 		
@@ -777,21 +826,37 @@ function makeVikingShip() {
 		
 		function halp() {
 			return "Viking Ship:
+			
 I know these guys are from a different time but they're just so cool I couldn't resist
+
 The Viking longship is not nearly as heavily armored as other ships, watch your hull health
+
 The Vikings do not have cannons, but they have bows that can be fired from distance 2 or closer
+
 Viking crew members are a formidable force, dealing high damage to both crew and structures with above-average defense
+
 Actions:
+
 Wait: skip an action
+
 Board: board the enemy ship with your crew
+
 Move: move your crew from one zone to another on a ship
+
 Retreat: pull back boarders from the opponent's ship
-Repair: order the crew to patch the hull in a zone
+
+Repair: order the crew to patch the hull or put out a fire in a zone
+
 Rearm: order the crew to move cannons from one zone to another
+
 Flame: order the crew to set fire to a zone
+
 Brace: reduce incoming damage to a zone on the next turn
+
 Sail: change the distance between the ships
+
 Reference: get a quick list of commands to run in case you forget syntax
+
 Arrows: fire a volley of arrows from distance 2 or closer to deal damage to the enemy crew"
 		}
 		
@@ -1032,7 +1097,7 @@ function makeCursedShip() {
 			write-host "Board: board the enemy ship with your crew"
 			write-host "Move: move your crew from one zone to another on a ship"
 			write-host "Retreat: pull back boarders from the opponent's ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
+			write-host "Repair: order the crew to patch the hull or put out a fire in a zone"
 			write-host "Rearm: order the crew to move cannons from one zone to another"
 			write-host "Flame: order the crew to set fire to a zone"
 			write-host "Brace: reduce incoming damage to a zone on the next turn"
@@ -1249,7 +1314,7 @@ function makeTurtleShip() {
 			write-host "Board: board the enemy ship with your crew"
 			write-host "Move: move your crew from one zone to another on a ship"
 			write-host "Retreat: pull back boarders from the opponent's ship"
-			write-host "Repair: order the crew to patch the hull in a zone"
+			write-host "Repair: order the crew to patch the hull or put out a fire in a zone"
 			write-host "Rearm: order the crew to move cannons from one zone to another"
 			write-host "Flame: order the crew to set fire to a zone"
 			write-host "Brace: reduce incoming damage to a zone on the next turn"
