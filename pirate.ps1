@@ -17,6 +17,8 @@
 $turnLoc = ".\turn.txt"
 # It's really in your best interest to just keep everything in its current place
 
+#change rearm in bot to check and make sure there is enough crew to maximize cannon damage
+
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
 if ($tutorial -eq "n" -or $tutorial -eq "no") {
@@ -53,7 +55,7 @@ if ($tutorial -eq "n" -or $tutorial -eq "no") {
 	
 }
 
-$tutorial = Read-Host -Prompt "Do you want to play against a bot? [y]es or [n]o"
+$b = Read-Host -Prompt "Do you want to play against a bot? [y]es or [n]o"
 
 
 #set up names / meta stuff
@@ -65,7 +67,7 @@ $cpu2 = 0
 $Name1 = Read-Host -Prompt "Input name for p1's ship"
 $p1Ship = readShip($Name1)
 
-if ($tutorial -eq "y" -or $tutorial -eq "yes") {
+if ($b -eq "y" -or $b -eq "yes") {
 	$cpu2 = 1
 	$Name2 = "rob"
 } else {
@@ -549,25 +551,57 @@ function DamageReport($Dis, $os, $ds){
 	}
 	
 	write-host "Damage Report:"
-    write-host ("{0,-37} |$Dis| {1,37}" -f $os.Name, $ds.Name)
+    write-host ("{0,-40}  |$Dis|  {1,40}" -f $os.Name, $ds.Name)
 	Start-Sleep -Seconds 1
-	write-host "                                     bow"
-	Start-Sleep -Seconds 1
-	write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($os.Health[0..3] -join "         ") + "   |$Dis|  " +  ($ds.Health[0..3] -join "         ")
-	write-host $str
-	Start-Sleep -Seconds 1
-	write-host "                                     Mid"
-	Start-Sleep -Seconds 1
-	write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($os.Health[4..7] -join "         ") + "   |$Dis|  " + ($ds.Health[4..7] -join "         ")
-	write-host $str
-	Start-Sleep -Seconds 1
-	write-host "                                     Stern"
-	Start-Sleep -Seconds 1
-	write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
-	$str = ($os.Health[8..11] -join "         ") + "   |$Dis|  " + ($ds.Health[8..11] -join "         ")
-	write-host $str
+	#write-host "                                     Bow"
+	#Start-Sleep -Seconds 1
+	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	#$str = ($os.Health[0..3] -join "         ") + "   |$Dis|  " +  ($ds.Health[0..3] -join "         ")
+	#write-host $str
+	#Start-Sleep -Seconds 1
+	#write-host "                                     Mid"
+	#Start-Sleep -Seconds 1
+	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	#$str = ($os.Health[4..7] -join "         ") + "   |$Dis|  " + ($ds.Health[4..7] -join "         ")
+	#write-host $str
+	#Start-Sleep -Seconds 1
+	#write-host "                                     Stern"
+	#Start-Sleep -Seconds 1
+	#write-host "Crew     Boarders   Cannons     Hull  |$Dis|  Crew     Boarders   Cannons     Hull"
+	#$str = ($os.Health[8..11] -join "         ") + "   |$Dis|  " + ($ds.Health[8..11] -join "         ")
+	#write-host $str
+	$names = "Bow", "Mid", "Stern"
+	
+	for ($i = 0; $i -lt 3; $i++) {
+		$name = $names[$i]
+		write-host "                                          $name"
+		write-host "Crew        Boarders    Cannons     Hull  |$Dis|   Crew        Boarders    Cannons     Hull"
+		for ($j = 0; $j -lt 4; $j++) {
+			$num = $os.Health[($i*4)+$j]
+			$str = ""
+			if ($num -lt 100) {
+				$str = " "
+			}
+			if ($num -lt 10) {
+				$str = "  "
+			}
+			Write-Host -NoNewline "$num $str        "
+		}
+		for ($j = 0; $j -lt 4; $j++) {
+			$num = $ds.Health[($i*4)+$j]
+			$str = ""
+			if ($num -lt 100) {
+				$str = " "
+			}
+			if ($num -lt 10) {
+				$str = "  "
+			}
+			Write-Host -NoNewline "$num $str        "
+		}
+		write-host ""
+		start-sleep -Seconds 1
+	}
+
 }
 
 #reads parts of ship into zone numbers
@@ -794,7 +828,31 @@ while ($End -eq 0){
 		write-host "or after a player takes a movement-related action."
 		write-host ""
 		start-sleep -seconds 3
-		write-host "Have fun, and feel free to add / remove stuff from the program."
+		write-host "You can see the relative health values of each ship here."
+		write-host "The player who is currently taking their turn will be listed on the left side."
+		write-host ""
+		start-sleep -seconds 3
+		write-host "'Crew' is the number of crew in the zone."
+		write-host "Crew is required to move and fire cannons, and to repair the ship"
+		write-host ""
+		start-sleep -seconds 3
+		write-host "'Boarders' is the number of enemy crew in the zone."
+		write-host "The enemy can board your ship, and moving crew to a zone will cause them to skirmish."
+		write-host "if there is no crew in a zone where boarders are present, they will do damage to the hull and cannons."
+		write-host ""
+		start-sleep -seconds 3
+		write-host "'Cannons' is the number of cannons in the zone."
+		write-host "Cannons are required to fire, and can be moved but cannot be repaired, so protect them."
+		write-host "You can move as many crew as you like into a zone, but each zone has a maximum number of cannons."
+		write-host "You will start with the maximum number of cannons at each zone, but some ships have different maximums."
+		write-host ""
+		start-sleep -seconds 3
+		write-host "'Hull' is the hull health in the zone."
+		write-host "If this drops to zero in any zone, your ship will sink."
+		write-host "But, if you are close enough to the enemy ship, your crew will abandon your ship and board theirs, and the game continues."
+		write-host ""
+		start-sleep -seconds 3
+		write-host "That's about it, have fun, and feel free to add / remove stuff from the program."
 		write-host ""
 		start-sleep -seconds 5
 	}
