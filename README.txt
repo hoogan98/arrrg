@@ -14,6 +14,10 @@ to font size 12 for both windows.
 
 
 
+This game does work without the UI, you can just close the second powershell window that opens and everything will run normally.
+
+
+
 
 The source code is included in case you want to laugh at how bad we are at coding, or add stuff for some reason.
 ALSO you have to run the following command in powershell if you plan on running this from the source code:
