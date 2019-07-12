@@ -3,7 +3,8 @@
 # 4 health nums: crew, boarders, cannons, hull
 # As a quick overview, this file contains a few system functions that are independant of the ships and a big switch statement that reads
 # user input.  It imports a class that contains all the ship functions called ships.ps1, and writes some data to a file called 'turn.txt'
-# that the gui uses to draw the ships.
+# that the gui uses to draw the ships. Also all the logic for the bot comes first, and it is intentionally bad at certain things to help the
+# user kill it.  If you want to make the thing a god go ahead.
 
 # add in ideas that I never got around to:
 #more ships with special stats
@@ -17,7 +18,7 @@
 $turnLoc = ".\turn.txt"
 # It's really in your best interest to just keep everything in its current place
 
-#change rearm in bot to check and make sure there is enough crew to maximize cannon damage
+# get bot to report the zone it is firing on in words
 
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
@@ -120,10 +121,6 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 	$b2 = $eShip.Health[5]
 	$b3 = $eShip.Health[9]
 	
-	if ($abandoned -ne 0 -and $mc -eq 0) {
-		$a = 1
-	}
-	
 	if ($abandoned -eq 0) {
 
 		if ($mcannon -ge 10) {
@@ -185,18 +182,23 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 					$wants[$i] = "boardS";
 					$i++;
 				}
-			} else {
+			} elseif ($mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
 				$wants[$i] = "sailA"
 				$i++;
 			}
 			
-		} elseif (($ec -ge ($mc * 1.3) -or $eShip.Code -eq 3) -and $dis -lt 4 -and $eShip.Code -ne 2) {
+		} elseif ((($ec -ge ($mc * 1.3) -or $eShip.Code -eq 3) -and $dis -lt 4 -and $eShip.Code -ne 2) -and $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
 			$wants[$i] = "sailP"
 			$i++;
 		}
 		#ramming ship check
-		if (($dis -eq 2 -or $dis -eq 1) -and $eShip.Code -eq 1) {
+		if ((($dis -eq 2 -or $dis -eq 1) -and $eShip.Code -eq 1 -and (!($mc -ge ($ec * 1.3) -or $mcannon -le 10) -and $eShip.Code -ne 2)) -and $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
 			$wants[$i] = "sailP"
+			$i++
+		}
+		#sinking/out of cannons check
+		if (($mShip.Health[3] -lt 25 -or $mShip.Health[7] -lt 25 -or $mShip.Health[11] -lt 25 -or ($mShip.Health[2] + $mShip.Health[6] + $mShip.Health[10]) -lt 10) -and $mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
+			$wants[$i] = "sailA"
 			$i++
 		}
 		#brace check
@@ -217,17 +219,26 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 			if ($dis -eq 0) {
 				$wants[$i] = "retreatB"
 				$i++
+			} elseif ($mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
+				$wants[$i] = "sailA"
+				$i++
 			}
 		}
 		if ($c2 -gt $b2 -and $b2 -gt 0) {
 			if ($dis -eq 0) {
 				$wants[$i] = "retreatM"
 				$i++
+			} elseif ($mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
+				$wants[$i] = "sailA"
+				$i++
 			}
 		}
 		if ($c3 -gt $b3 -and $b3 -gt 0) {
 			if ($dis -eq 0) {
 				$wants[$i] = "retreatS"
+				$i++
+			} elseif ($mShip.Health[0] + $mShip.Health[4] + $mShip.Health[8] -ne 0) {
+				$wants[$i] = "sailA"
 				$i++
 			}
 		}
@@ -386,7 +397,8 @@ function decide($ship, $Dship, $dis, $wants) {
 				continue;
 			}
 			$comm = $str.Substring(0, $str.length - 1)
-			$zone = transZone $str.Substring($str.length - 1, 1) 
+			$zone = transZone $str.Substring($str.length - 1, 1)
+			$z = $zone
 			switch ($comm) {
 				{$_ -eq "chain"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -403,6 +415,9 @@ function decide($ship, $Dship, $dis, $wants) {
 										break;
 									}
 									if ($zone -eq $fired) {
+										break;
+									}
+									if ($turns -eq 0) {
 										break;
 									}
 									$turns -= 1
@@ -426,6 +441,9 @@ function decide($ship, $Dship, $dis, $wants) {
 									if ($zone -eq $fired) {
 										break;
 									}
+									if ($turns -eq 0) {
+										break;
+									}
 									$turns -= 1
 									$fired = $zone
 									write-host "rob decides to fire roundshot " $zone
@@ -445,6 +463,9 @@ function decide($ship, $Dship, $dis, $wants) {
 										break;
 									}
 									if ($zone -eq $fired) {
+										break;
+									}
+									if ($turns -eq 0) {
 										break;
 									}
 									$turns -= 1
@@ -488,6 +509,9 @@ function decide($ship, $Dship, $dis, $wants) {
 				{$_ -eq "brace"} {	if ($zone -eq $fired) {
 										break;
 									}
+									if ($ship.Health[0+($zone*4)] -eq 0) {
+										break;
+									}
 									$turns -= 1
 									$fired = $zone
 									write-host "rob decides to brace " $zone
@@ -517,7 +541,6 @@ function decide($ship, $Dship, $dis, $wants) {
 			break;
 		}
 	}
-	write-host $dis
 	return $dis
 }
 
@@ -704,12 +727,28 @@ function startFire($state, $zone){
 	$state[$zone] = -1;
 }
 
+#turns zone numbers to names
+function revZone($z) {
+	if ($z -eq 0) {
+		return "Bow"
+	} elseif ($z -eq 1) {
+		return "Mid"
+	} elseif ($z -eq 2) {
+		return "Stern"
+	} else {
+		return "ERROR"
+	}
+}
+
 #checks for states of various zones (0 = normal, -1 = on fire, 0+ = defended
 function checkState($os, $ds) {
 	for($i = 0; $i -lt 3; $i++) {
 		$z = 4*$i
 		$dmg = 0,0,0
 		if ($os.State[$i] -eq -1) {
+			$nam = $os.Name
+			$zon = revZone($i);
+			write-host "The R.M.S $nam has a fire on the $zon"
 			$dmg = $os.dmgFire()
 			$os.Health[0+$z] -= $dmg[0]
 			$os.Health[1+$z] -= $dmg[1]
@@ -717,6 +756,9 @@ function checkState($os, $ds) {
 			$os.Health[3+$z] -= $dmg[3]
 		}
 		if ($ds.State[$i] -eq -1) {
+			$nam = $ds.Name
+			$zon = revZone($i);
+			write-host "The R.M.S $nam has a fire on the $zon"
 			$dmg = $ds.dmgFire()
 			$ds.Health[0+$z] -= $dmg[0]
 			$ds.Health[1+$z] -= $dmg[1]
@@ -826,7 +868,12 @@ while ($End -eq 0){
 		start-sleep -seconds 3
 		write-host "'Hull' is the hull health in the zone."
 		write-host "If this drops to zero in any zone, your ship will sink."
-		write-host "But, if you are close enough to the enemy ship, your crew will abandon your ship and board theirs, and the game continues."
+		write-host "But, if you are close enough to the enemy ship, your crew will abandon your ship and board theirs, 
+and the game continues."
+		write-host ""
+		start-sleep -seconds 3
+		write-host "The player who goes first gets to choose the starting distance as their first action."
+		write-host "You can choose from 2 to 8, but once the game starts you can sail to distances from 0 to 10"
 		write-host ""
 		start-sleep -seconds 3
 		write-host "That's about it, have fun, and feel free to add / remove stuff from the program."
@@ -905,22 +952,26 @@ while ($End -eq 0){
 							  try {$mov = [int]$str}
 							  catch {write-host "choose either '0' or '1' to determine which ship to move crew on, I'm tired of making string reading functions"
 									 $i--; break}
-							  $str = Read-Host -Prompt "Choose zone to move from";
-							  $zone1 = readZone($str);
-							  $str = Read-Host -Prompt "Choose zone to move to";
-							  $zone2 = readZone($str);
-							  $str = Read-Host -Prompt "Choose number of crew to move"
-							  try {$amnt = [int]$str}
-							  catch {write-host "enter a number for the amount of crew to move"
-									 $i--; break}
 							  if ($mov -ne 0 -and $mov -ne 1) {
 								write-host "choose either '0' or '1' to determine which ship to move crew on, I'm tired of making string reading functions"
 								$i--; break
 							  }
-							  if ($zone1 -lt 0 -or $zone2 -lt 0){
+							  $str = Read-Host -Prompt "Choose zone to move from";
+							  $zone1 = readZone($str);
+							  if ($zone1 -lt 0){
 								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
 								$i--; break
 							  }
+							  $str = Read-Host -Prompt "Choose zone to move to";
+							  $zone2 = readZone($str);
+							  if ($zone2 -lt 0){
+								write-host "choose from 'bow', 'mid', and 'stern' for the zone";
+								$i--; break
+							  }
+							  $str = Read-Host -Prompt "Choose number of crew to move"
+							  try {$amnt = [int]$str}
+							  catch {write-host "enter a number for the amount of crew to move"
+									 $i--; break}
 							  if ($mov -eq 0) {
 								if (($amnt -lt 0) -or ($amnt -gt $Oship.Health[0+($zone1*4)])) {
 									write-host "Choose a real number of crew members to move";
@@ -1063,6 +1114,10 @@ while ($End -eq 0){
 								write-host "A zone can only do one non-movement action per turn"
 								$i--; break
 							  }
+							  if (($Oship.Health[0+($zone*4)] - $Oship.Health[1+($zone*4)]) -le 0) {
+								write-host "there is no free crew at that zone to brace with" 
+								$i--; break
+							  }
 							  $fired = $zone;
 							  defBoard $Oship $zone; break}
 			{$_ -eq "sail"}	 {$str = Read-Host -Prompt "Type '0' to approach and '1' to pull back";
@@ -1073,6 +1128,11 @@ while ($End -eq 0){
 								write-host "choose either '0' or '1' to determine which direction to sail, I'm tired of making string reading functions"
 								$i--; break
 							  }
+							  if ($Oship.Health[0] -eq 0 -and $Oship.Health[4] -eq 0 -and $Oship.Health[8] -eq 0) {
+								write-host "You have no crew on your ship to control it."
+								$i--; break
+							  }
+
 							  $dis = $Oship.sail($dir, $dis)
 							  if ($dis -gt 10) {
 								write-host "10 is the max distance"
@@ -1121,6 +1181,11 @@ while ($End -eq 0){
 								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
+							  if ($zone -eq $fired){
+								write-host "A zone can only do one non-movement action per turn"
+								$i--; break
+							  }
+							  $fired = $zone;
 							  $Oship.resurrect($zone)
 							  DamageReport $dis $Oship $Dship; break}
 		{$_ -eq "arrows"}	 {$str = Read-Host -Prompt "Choose zone to fire arrows from";
@@ -1194,7 +1259,12 @@ while ($End -eq 0){
 		}
 		if ($Abandoned -ne 0) {
 			write-host "both ships are now underwater..."
-			write-host "everyone died, nobody wins.  Congratulations you animals."
+			write-host "everyone died, nobody wins. Congratulations you animals."
+			continue
+		}
+		if ($P1Ship.Health[0] -eq 0 -and $P1Ship.Health[4] -eq 0 -and $P1Ship.Health[8] -eq 0) {
+			write-host "$Name2 sunk with every living person on board..."
+			write-host "Everyone died, nobody wins. Congratulations you animals."
 			continue
 		}
 		write-host ""
@@ -1212,7 +1282,12 @@ while ($End -eq 0){
 		}
 		if ($Abandoned -ne 0) {
 			write-host "both ships are now underwater..."
-			write-host "everyone died, nobody wins.  Congratulations you animals."
+			write-host "everyone died, nobody wins. Congratulations you animals."
+			continue
+		}
+		if ($P2Ship.Health[0] -eq 0 -and $P2Ship.Health[4] -eq 0 -and $P2Ship.Health[8] -eq 0) {
+			write-host "$Name1 sunk with every living person on board..."
+			write-host "Everyone died, nobody wins. Congratulations you animals."
 			continue
 		}
 		write-host ""
