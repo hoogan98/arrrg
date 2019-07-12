@@ -187,7 +187,7 @@ Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
 
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
 
-Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Round: fire roundshot. Damage: \/crew, --cannons, /\hull
 
 Wait: skip an action
 
@@ -248,6 +248,7 @@ function makeRammingShip() {
 		$Defense = 1.65
 		$Code = 1
 		$CannonMax = 0,20,20
+		$HealthMax = 150,75,75
 		
 		#calculate number of cannons to fire given health value and zone
 		function fireCount($zone) {
@@ -306,7 +307,7 @@ function makeRammingShip() {
 			}
 			$z = 4 * $zone
 			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
-			if ($Health[3+$z] -gt 100) {
+			if ($Health[3+$z] -gt $HealthMax[$zone]) {
 				$Health[3+$z] = 100
 			}
 		}
@@ -411,7 +412,7 @@ Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
 
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
 
-Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Round: fire roundshot. Damage: \/crew, --cannons, /\hull
 
 Wait: skip an action
 
@@ -438,7 +439,7 @@ Ram: move from distance 1 to 0, charging the enemy ship and dealing high hull da
 		
 		function dmgRam() {
 			$Health[3] -= ([math]::Ceiling((Get-Random -Minimum 20 -Maximum 30)))
-			$dmg = 5,5,2,40
+			$dmg = 5,5,2,35
 			return $dmg
 		}
 		
@@ -540,7 +541,7 @@ function makeUndeadShip() {
 				return
 			}
 			$z = 4 * $zone
-			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
+			$Health[3+$z] += [math]::Ceiling($builders * $StrucDmg)
 			if ($Health[3+$z] -gt 100) {
 				$Health[3+$z] = 100
 			}
@@ -641,7 +642,7 @@ Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull
 
 Chain: fire chainshot. Damage: /\crew, \/cannons, --hull
 
-Round: fire roundshot. Damage: \/crew, /\cannons, --hull
+Round: fire roundshot. Damage: \/crew, --cannons, /\hull
 
 Wait: skip an action
 
@@ -764,7 +765,7 @@ function makeVikingShip() {
 			}
 			$z = 4 * $zone
 			$Health[3+$z] += [math]::Ceiling($builders * 0.2)
-			if ($Health[3+$z] -gt 100) {
+			if ($Health[3+$z] -gt 70) {
 				$Health[3+$z] = 100
 			}
 		}
@@ -1092,7 +1093,7 @@ function makeCursedShip() {
 			write-host "Actions:"
 			write-host "Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull"
 			write-host "Chain: fire chainshot. Damage: /\crew, \/cannons, --hull"
-			write-host "Round: fire roundshot. Damage: \/crew, /\cannons, --hull"
+			write-host "Round: fire roundshot. Damage: \/crew, --cannons, /\hull"
 			write-host "Wait: skip an action"
 			write-host "Board: board the enemy ship with your crew"
 			write-host "Move: move your crew from one zone to another on a ship"
@@ -1309,7 +1310,7 @@ function makeTurtleShip() {
 			write-host "Actions:"
 			write-host "Grape: fire grapeshot. Damage: --crew, /\cannons, \/hull"
 			write-host "Chain: fire chainshot. Damage: /\crew, \/cannons, --hull"
-			write-host "Round: fire roundshot. Damage: \/crew, /\cannons, --hull"
+			write-host "Round: fire roundshot. Damage: \/crew, --cannons, /\hull"
 			write-host "Wait: skip an action"
 			write-host "Board: board the enemy ship with your crew"
 			write-host "Move: move your crew from one zone to another on a ship"
