@@ -1,36 +1,4 @@
-﻿##[Ps1 To Exe]
-##
-##Kd3HDZOFADWE8uK1
-##Nc3NCtDXThU=
-##Kd3HFJGZHWLWoLaVvnQnhQ==
-##LM/RF4eFHHGZ7/K1
-##K8rLFtDXTiW5
-##OsHQCZGeTiiZ4tI=
-##OcrLFtDXTiW5
-##LM/BD5WYTiiZ4tI=
-##McvWDJ+OTiiZ4tI=
-##OMvOC56PFnzN8u+Vs1Q=
-##M9jHFoeYB2Hc8u+Vs1Q=
-##PdrWFpmIG2HcofKIo2QX
-##OMfRFJyLFzWE8uK1
-##KsfMAp/KUzWJ0g==
-##OsfOAYaPHGbQvbyVvnQX
-##LNzNAIWJGmPcoKHc7Do3uAuO
-##LNzNAIWJGnvYv7eVvnQX
-##M9zLA5mED3nfu77Q7TV64AuzAgg=
-##NcDWAYKED3nfu77Q7TV64AuzAgg=
-##OMvRB4KDHmHQvbyVvnQX
-##P8HPFJGEFzWE8tI=
-##KNzDAJWHD2fS8u+Vgw==
-##P8HSHYKDCX3N8u+Vgw==
-##LNzLEpGeC3fMu77Ro2k3hQ==
-##L97HB5mLAnfMu77Ro2k3hQ==
-##P8HPCZWEGmaZ7/K1
-##L8/UAdDXTlaDjrHa5zFI9l/7RG4Xb9eJq7Gb1Iiu/v7p9SDBTPo=
-##Kc/BRM3KXhU=
-##
-##
-##fd6a9f26a06ea3bc99616d4851b372ba
+﻿
 
 # 3 zones: bow, mid, stern
 # 4 health nums: crew, boarders, cannons, hull
@@ -51,7 +19,7 @@
 $turnLoc = ".\turn.txt"
 # It's really in your best interest to just keep everything in its current place
 
-# get bot to report the zone it is firing on in words
+# get sfx
 
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
@@ -455,7 +423,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to fire chainshot " $zone
+									$str = revZone $zone
+									write-host "rob decides to fire chainshot on the "$str
 									$dmg = $ship.dmgChain($zone, $dis); break}
 				{$_ -eq "round"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -479,7 +448,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to fire roundshot " $zone
+									$str = revZone $zone
+									write-host "rob decides to fire roundshot on the "$str
 									$dmg = $ship.dmgRound($zone, $dis); break}
 				{$_ -eq "grape"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -503,7 +473,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to fire grapeshot " $zone
+									$str = revZone $zone
+									write-host "rob decides to fire grapeshot on the "$str
 									$dmg = $ship.dmgGrape($zone, $dis); break}
 				{$_ -eq "board"} {	if ($turns -eq 2) {
 										$num = (determineMove $ship $zone)
@@ -518,12 +489,13 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to board " $zone
+									$str = revZone $zone
+									write-host "rob decides to board on the "$str
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
 									$dmg = 0,0,0,0; break}
 				{$_ -eq "sail"} {	$turns -= 1
-									write-host "rob decides to sail " $zone
+									write-host "rob decides to sail"
 									$dis = $ship.sail($zone, $dis)
 									if ($dis -eq 0 -and $turns -gt 0) {
 										$c1 = $Dship.Health[0];
@@ -547,26 +519,30 @@ function decide($ship, $Dship, $dis, $wants) {
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to brace " $zone
+									$str = revZone $zone
+									write-host "rob decides to brace on the "$str
 									defBoard $ship $zone; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
 									}
 									$turns -= 1
 									$fired = $zone
-									write-host "rob decides to retreat " $zone
+									$str = revZone $zone
+									write-host "rob decides to retreat on the "$str
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
 										break;
 									}
 									$turns -= 2
-									write-host "rob decides to start a fire " $zone
+									$str = revZone $zone
+									write-host "rob decides to start a fire on the "$str
 									$Dship.State[$zone] = -1
 									moveToMin $Dship $zone
 									break}
 			}
 			addDmg $Dship $dmg $zone $ship
 			$dmg = 0,0,0,0
+			Start-Sleep -Seconds 2
 		}
 		if ($i -gt 1000) {
 			write-host "rob decides to wait for the rest of the turn"
