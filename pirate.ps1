@@ -17,6 +17,9 @@
 # IF YOU MOVE THESE FILES CHANGE THESE VARIABLES HERE AND ALSO UPDATE THE GUI:
 . .\ships.ps1
 $turnLoc = ".\turn.txt"
+$grapeSfx = ".\sfx\grapeshot.wav"
+$roundSfx = ".\sfx\roundshot.wav"
+$chainSfx = ".\sfx\chainshot.wav"
 # It's really in your best interest to just keep everything in its current place
 
 # get sfx
@@ -82,6 +85,9 @@ $Turn = 0;
 $AcNum = 1;
 $Distance = 1
 Add-Content -Path $turnLoc -Value "init"
+$chainSound = New-Object System.Media.SoundPlayer($chainSfx)
+$roundSound = New-Object System.Media.SoundPlayer($roundSfx)
+$grapeSound = New-Object System.Media.SoundPlayer($grapeSfx)
 
 
 
@@ -424,7 +430,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to fire chainshot on the "$str
+									write-host "rob decides to fire chainshot on the" $str
+									$chainSound.Play()
 									$dmg = $ship.dmgChain($zone, $dis); break}
 				{$_ -eq "round"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -449,7 +456,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to fire roundshot on the "$str
+									write-host "rob decides to fire roundshot on the" $str
+									$roundSound.Play()
 									$dmg = $ship.dmgRound($zone, $dis); break}
 				{$_ -eq "grape"} {	if ($turns -eq 2) {
 										$num = (determineRearm $ship $zone)
@@ -474,7 +482,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to fire grapeshot on the "$str
+									write-host "rob decides to fire grapeshot on the" $str
+									$grapeSound.Play()
 									$dmg = $ship.dmgGrape($zone, $dis); break}
 				{$_ -eq "board"} {	if ($turns -eq 2) {
 										$num = (determineMove $ship $zone)
@@ -490,7 +499,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to board on the "$str
+									write-host "rob decides to board on the" $str
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
 									$dmg = 0,0,0,0; break}
@@ -520,7 +529,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to brace on the "$str
+									write-host "rob decides to brace on the" $str
 									defBoard $ship $zone; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
@@ -528,14 +537,14 @@ function decide($ship, $Dship, $dis, $wants) {
 									$turns -= 1
 									$fired = $zone
 									$str = revZone $zone
-									write-host "rob decides to retreat on the "$str
+									write-host "rob decides to retreat on the" $str
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
 										break;
 									}
 									$turns -= 2
 									$str = revZone $zone
-									write-host "rob decides to start a fire on the "$str
+									write-host "rob decides to start a fire on the" $str
 									$Dship.State[$zone] = -1
 									moveToMin $Dship $zone
 									break}
@@ -932,6 +941,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $grapeSound.Play()
 							  $dmg = $Oship.dmgGrape($zone, $dis); break}
 			{$_ -eq "round"} {$str = Read-Host -Prompt "Choose zone to fire roundshot from";
 							  $zone = readZone($str);
@@ -944,6 +954,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $roundSound.Play()
 							  $dmg = $Oship.dmgRound($zone, $dis); break}
 			{$_ -eq "chain"} {$str = Read-Host -Prompt "Choose zone to fire chainshot from";
 							  $zone = readZone($str);
@@ -956,6 +967,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $chainSound.Play()
 							  $dmg = $Oship.dmgChain($zone, $dis); break}
 			{$_ -eq "move"}	 {$str = Read-Host -Prompt "enter '0' to move crew on your ship and '1' to move boarded crew"
 							  try {$mov = [int]$str}
