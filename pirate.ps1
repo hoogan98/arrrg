@@ -20,6 +20,10 @@ $turnLoc = ".\turn.txt"
 $grapeSfx = ".\sfx\grapeshot.wav"
 $roundSfx = ".\sfx\roundshot.wav"
 $chainSfx = ".\sfx\chainshot.wav"
+$ramSfx = ".\sfx\ram.wav"
+$moveSfx = ".\sfx\move.wav"
+$boardSfx = ".\sfx\board.wav"
+$retreatSfx = ".\sfx\retreat.wav"
 # It's really in your best interest to just keep everything in its current place
 
 # get sfx
@@ -88,7 +92,10 @@ Add-Content -Path $turnLoc -Value "init"
 $chainSound = New-Object System.Media.SoundPlayer($chainSfx)
 $roundSound = New-Object System.Media.SoundPlayer($roundSfx)
 $grapeSound = New-Object System.Media.SoundPlayer($grapeSfx)
-
+$ramSound = New-Object System.Media.SoundPlayer($ramSfx)
+$moveSound = New-Object System.Media.SoundPlayer($moveSfx)
+$boardSound = New-Object System.Media.SoundPlayer($boardSfx)
+$retreatSound = New-Object System.Media.SoundPlayer($retreatSfx)
 
 
 #the name dreadPirateTed wins automatically
@@ -320,6 +327,7 @@ function determineMove($ship, $z) {
 		return;
 	}
 	
+	$moveSound.Play()
 	crewMove $ship.Health $ship.Health 0 $amnt $pullZone $z
 	write-host "rob decides to move crew"
 	return 1
@@ -341,7 +349,8 @@ function moveToMin($ship, $zone) {
 		}
 	}
 	
-	write-host "rob decides to move"
+	write-host "rob decides to move crew"
+	$moveSound.Play()
 	crewMove $ship.Health $ship.Health 1 $amnt $zone $newZone
 }
 
@@ -500,6 +509,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									$fired = $zone
 									$str = revZone $zone
 									write-host "rob decides to board on the" $str
+									$boardSound.Play()
 									$dmg = $ship.board($Dship, $ship.Health[0+(4*$zone)], $zone)
 									addDmg $Dship $dmg $zone $ship
 									$dmg = 0,0,0,0; break}
@@ -538,6 +548,7 @@ function decide($ship, $Dship, $dis, $wants) {
 									$fired = $zone
 									$str = revZone $zone
 									write-host "rob decides to retreat on the" $str
+									$retreatSound.Play()
 									$ship.retreat($Dship, $zone, $Dship.Health[1 + (4*$zone)]); break}
 				{$_ -eq "flame"} {	if ($turns -eq 1) {
 										break;
@@ -827,6 +838,7 @@ function abandonShip($sunk, $floating, $dis) {
 			$sunk.Health[1+$z] = 0
 		}
 	}
+	$boardSound.Play()
 	DamageReport $dis $floating $sunk
 	skirmish $floating $sunk
 }
@@ -1005,6 +1017,7 @@ and the game continues."
 									$i--; break
 								}
 							  }
+							  $moveSound.Play()
 							  crewMove $Oship.Health $Dship.Health $mov $amnt $zone1 $zone2
 							  DamageReport $dis $Oship $Dship; break}
 			{$_ -eq "board"} {$str = Read-Host -Prompt "Choose zone to board";
@@ -1029,6 +1042,7 @@ and the game continues."
 								write-host "the ship has sunk... Your crew just jumped into the ocean"
 								$Oship.Health[0+(4*$zone)] -= $amnt
 							  } else {
+								$boardSound.Play()
 								$dmg = $Oship.board($Dship, $amnt, $zone)
 								addDmg $Dship $dmg $zone $Oship
 								$dmg = 0,0,0,0
@@ -1056,6 +1070,7 @@ and the game continues."
 								write-host "your ship has sunk... Your crew just jumped into the ocean"
 								$Oship.Health[1+(4*$zone)] -= $amnt
 							  } else {
+								$retreatSound.Play()
 								$Oship.retreat($Dship, $zone, $amnt)
 							  }
 							  DamageReport $dis $Oship $Dship; break}
@@ -1191,6 +1206,7 @@ and the game continues."
 							  }
 							  $fired = $zone;
 							  $dis--
+							  $ramSound.Play()
 							  $dmg = $Oship.dmgRam(); break}
 	{$_ -eq "resurrect"}	 {$str = Read-Host -Prompt "Choose zone to revive crew on";
 							  $zone = readZone($str)
