@@ -24,9 +24,18 @@ $ramSfx = ".\sfx\ram.wav"
 $moveSfx = ".\sfx\move.wav"
 $boardSfx = ".\sfx\board.wav"
 $retreatSfx = ".\sfx\retreat.wav"
+$repairSfx = ".\sfx\repair.wav"
+$rearmSfx = ".\sfx\rearm.wav"
+$flame1Sfx = ".\sfx\flame1.wav"
+$flame2Sfx = ".\sfx\flame2.wav"
+$braceSfx = ".\sfx\brace.wav"
+$sailSfx = ".\sfx\sail.wav"
+$resurrectSfx = ".\sfx\resurrect.wav"
 # It's really in your best interest to just keep everything in its current place
 
 # get sfx
+# space out dmg prints
+# stop telling the bot to print all its moves
 
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
@@ -96,6 +105,13 @@ $ramSound = New-Object System.Media.SoundPlayer($ramSfx)
 $moveSound = New-Object System.Media.SoundPlayer($moveSfx)
 $boardSound = New-Object System.Media.SoundPlayer($boardSfx)
 $retreatSound = New-Object System.Media.SoundPlayer($retreatSfx)
+$repairSound = New-Object System.Media.SoundPlayer($repairSfx)
+$rearmSound = New-Object System.Media.SoundPlayer($rearmSfx)
+$flame1Sound = New-Object System.Media.SoundPlayer($flame1Sfx)
+$flame2Sound = New-Object System.Media.SoundPlayer($flame2Sfx)
+$braceSound = New-Object System.Media.SoundPlayer($braceSfx)
+$sailSound = New-Object System.Media.SoundPlayer($sailSfx)
+$resurrectSound = New-Object System.Media.SoundPlayer($resurrectSfx)
 
 
 #the name dreadPirateTed wins automatically
@@ -303,6 +319,8 @@ function determineRearm($ship, $z) {
 	
 	$ship.reArm($pullZone, $z, $amnt)
 	write-host "rob decides to rearm"
+	$rearmSound.Play()
+	start-sleep -seconds 2
 	return 1
 }
 
@@ -330,6 +348,7 @@ function determineMove($ship, $z) {
 	$moveSound.Play()
 	crewMove $ship.Health $ship.Health 0 $amnt $pullZone $z
 	write-host "rob decides to move crew"
+	start-sleep -seconds 2
 	return 1
 }
 
@@ -351,6 +370,7 @@ function moveToMin($ship, $zone) {
 	
 	write-host "rob decides to move crew"
 	$moveSound.Play()
+	start-sleep -seconds 2
 	crewMove $ship.Health $ship.Health 1 $amnt $zone $newZone
 }
 
@@ -394,6 +414,9 @@ function decide($ship, $Dship, $dis, $wants) {
 					} else {
 						$turns--
 						$ship.Rebuild(0)
+						$repairSound.Play()
+						write-host "rob decides to repair on the Bow" 
+						start-sleep -seconds 2
 					}
 				} elseif ($ship.State[1] -lt 0) {
 					if ($ship.Health[4] -eq 0) {
@@ -401,12 +424,18 @@ function decide($ship, $Dship, $dis, $wants) {
 					} else {
 						$turns--
 						$ship.Rebuild(1)
+						$repairSound.Play()
+						write-host "rob decides to repair on the Mid" 
+						start-sleep -seconds 2
 					}
 				} elseif ($ship.State[2] -lt 0) {
 					if ($ship.Health[8] -eq 0) {
 						$turns -= determineMove $ship 2
 					} else {
 						$ship.Rebuild(2)
+						$repairSound.Play()
+						write-host "rob decides to repair on the Stern" 
+						start-sleep -seconds 2
 						$turns--
 					}
 				}
@@ -515,6 +544,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									$dmg = 0,0,0,0; break}
 				{$_ -eq "sail"} {	$turns -= 1
 									write-host "rob decides to sail"
+									$sailSound.Play()
+									start-sleep -Seconds 4
 									$dis = $ship.sail($zone, $dis)
 									if ($dis -eq 0 -and $turns -gt 0) {
 										$c1 = $Dship.Health[0];
@@ -540,6 +571,8 @@ function decide($ship, $Dship, $dis, $wants) {
 									$fired = $zone
 									$str = revZone $zone
 									write-host "rob decides to brace on the" $str
+									$braceSound.Play()
+									start-sleep -Seconds 2
 									defBoard $ship $zone; break}
 			{$_ -eq "retreat"} {	if ($zone -eq $fired) {
 										break;
@@ -557,6 +590,10 @@ function decide($ship, $Dship, $dis, $wants) {
 									$str = revZone $zone
 									write-host "rob decides to start a fire on the" $str
 									$Dship.State[$zone] = -1
+									$flame1Sound.Play()
+									start-sleep -Seconds 1
+									$flame2Sound.Play()
+									start-sleep -Seconds 1
 									moveToMin $Dship $zone
 									break}
 			}
@@ -1085,6 +1122,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $repairSound.Play()
 							  $Oship.rebuild($zone); break}
 			{$_ -eq "rearm"} {$str = Read-Host -Prompt "Choose zone to move from";
 							  $zone1 = readZone($str);
@@ -1107,6 +1145,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $success = $Oship.reArm($zone1, $zone2, $amnt)
+							  $rearmSound.Play()
 							  if ($success -lt 0) {
 								write-host "that zone can't hold that many cannons"
 								$i--; break
@@ -1131,6 +1170,9 @@ and the game continues."
 									write-host "There is no crew at that zone";
 									$i--; break
 								}
+								$flame1Sound.Play()
+								start-sleep -Seconds 1
+								$flame2Sound.Play()
 								startFire $Oship.State $zone
 							  }
 							  if ($fr -eq 1) {
@@ -1138,6 +1180,9 @@ and the game continues."
 									write-host "There is no crew at that zone";
 									$i--; break
 								}
+								$flame1Sound.Play()
+								start-sleep -Seconds 1
+								$flame2Sound.Play()
 								startFire $Dship.State $zone
 							  }; break}
 			{$_ -eq "brace"} {$str = Read-Host -Prompt "Choose zone to brace";
@@ -1155,6 +1200,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $braceSound.Play()
 							  defBoard $Oship $zone; break}
 			{$_ -eq "sail"}	 {$str = Read-Host -Prompt "Type '0' to approach and '1' to pull back";
 							  try {$dir = [int]$str}
@@ -1168,7 +1214,7 @@ and the game continues."
 								write-host "You have no crew on your ship to control it."
 								$i--; break
 							  }
-
+							  $sailSound.Play()
 							  $dis = $Oship.sail($dir, $dis)
 							  if ($dis -gt 10) {
 								write-host "10 is the max distance"
@@ -1223,6 +1269,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $resurrectSound.Play()
 							  $Oship.resurrect($zone)
 							  DamageReport $dis $Oship $Dship; break}
 		{$_ -eq "arrows"}	 {$str = Read-Host -Prompt "Choose zone to fire arrows from";
@@ -1255,6 +1302,7 @@ and the game continues."
 								write-host "Your ship is not cool enough to pull this move. Try again or type 'reference' for command list";
 								$i--; break
 							  }
+							  $braceSound.Play()
 							  defBoard $Oship $zone; break}
 		}
 		addDmg $Dship $dmg $zone $Oship
