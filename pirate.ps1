@@ -31,6 +31,7 @@ $flame2Sfx = ".\sfx\flame2.wav"
 $braceSfx = ".\sfx\brace.wav"
 $sailSfx = ".\sfx\sail.wav"
 $resurrectSfx = ".\sfx\resurrect.wav"
+$arrowSfx = ".\sfx\arrows"
 # It's really in your best interest to just keep everything in its current place
 
 # get sfx
@@ -112,6 +113,7 @@ $flame2Sound = New-Object System.Media.SoundPlayer($flame2Sfx)
 $braceSound = New-Object System.Media.SoundPlayer($braceSfx)
 $sailSound = New-Object System.Media.SoundPlayer($sailSfx)
 $resurrectSound = New-Object System.Media.SoundPlayer($resurrectSfx)
+$arrowSound = New-Object System.Media.SoundPlayer($arrowSfx)
 
 
 #the name dreadPirateTed wins automatically
@@ -1291,6 +1293,7 @@ and the game continues."
 								$i--; break
 							  }
 							  $fired = $zone;
+							  $arrowSound.Play()
 							  $dmg = $Oship.dmgArrows($zone, $Dship); break}
 		{$_ -eq "guard"}	 {$str = Read-Host -Prompt "Choose zone to guard";
 							  $zone = readZone($str);
