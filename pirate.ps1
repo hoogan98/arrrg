@@ -31,10 +31,9 @@ $flame2Sfx = ".\sfx\flame2.wav"
 $braceSfx = ".\sfx\brace.wav"
 $sailSfx = ".\sfx\sail.wav"
 $resurrectSfx = ".\sfx\resurrect.wav"
-$arrowSfx = ".\sfx\arrows"
+$arrowSfx = ".\sfx\arrows.wav"
 # It's really in your best interest to just keep everything in its current place
 
-# get sfx
 # space out dmg prints
 # stop telling the bot to print all its moves
 
@@ -115,6 +114,23 @@ $sailSound = New-Object System.Media.SoundPlayer($sailSfx)
 $resurrectSound = New-Object System.Media.SoundPlayer($resurrectSfx)
 $arrowSound = New-Object System.Media.SoundPlayer($arrowSfx)
 
+write-host "Loading sound effects..."
+$chainSound.Load()
+$roundSound.Load()
+$grapeSound.Load()
+$ramSound.Load()
+$moveSound.Load()
+$boardSound.Load()
+$retreatSound.Load()
+$repairSound.Load()
+$rearmSound.Load()
+$flame1Sound.Load()
+$flame2Sound.Load()
+$braceSound.Load()
+$sailSound.Load()
+$resurrectSound.Load()
+$arrowSound.Load()
+write-host "Done loading"
 
 #the name dreadPirateTed wins automatically
 if ($Name1 -eq "dreadPirateTed" -or $Name2 -eq "dreadPirateTed") {
@@ -547,7 +563,7 @@ function decide($ship, $Dship, $dis, $wants) {
 				{$_ -eq "sail"} {	$turns -= 1
 									write-host "rob decides to sail"
 									$sailSound.Play()
-									start-sleep -Seconds 4
+									start-sleep -Seconds 2
 									$dis = $ship.sail($zone, $dis)
 									if ($dis -eq 0 -and $turns -gt 0) {
 										$c1 = $Dship.Health[0];

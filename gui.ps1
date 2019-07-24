@@ -1,3 +1,7 @@
+$pirateBG = ".\pirateBG.wav"
+$BGM = New-Object System.Media.SoundPlayer($pirateBG)
+$BGM.PlayLooping()
+	
 while (1) {
 	Start-Sleep -Seconds 1
 	$turn = Get-Content -Path .\turn.txt
@@ -9,6 +13,7 @@ while (1) {
 		Clear-Content -Path .\turn.txt
 		echo "stop found"
 		Start-Sleep -Seconds 1
+		$BGM.Stop()
 		exit
 	}
 	
