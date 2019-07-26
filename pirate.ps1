@@ -34,8 +34,6 @@ $resurrectSfx = ".\sfx\resurrect.wav"
 $arrowSfx = ".\sfx\arrows.wav"
 # It's really in your best interest to just keep everything in its current place
 
-# stop telling the bot to print all its moves
-
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
 
 if ($tutorial -eq "n" -or $tutorial -eq "no") {
