@@ -1346,6 +1346,13 @@ and the game continues."
 		write-host "$Name2 ran out of living crew, $Name1 wins!"
 		write-host "final status"
 		DamageReport $dis $Oship $Dship
+		write-host ""
+		write-host "Credits:"
+		write-host "Music: 'The Pirate And The Dancer' by Rolemusic"
+		write-host "Source:"
+		write-host "http://freemusicarchive.org/music/Rolemusic/The_Pirate_And_The_Dancer/04_rolemusic_-_the_pirate_and_the_dancer"
+		write-host "Liscence of the music:"
+		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 2) {
 		write-host ""
@@ -1353,6 +1360,13 @@ and the game continues."
 		write-host "$Name1 ran out of living crew, $Name2 wins!"
 		write-host "final status"
 		DamageReport $dis $Oship $Dship
+		write-host ""
+		write-host "Credits:"
+		write-host "Music: 'The Pirate And The Dancer' by Rolemusic"
+		write-host "Source:"
+		write-host "http://freemusicarchive.org/music/Rolemusic/The_Pirate_And_The_Dancer/04_rolemusic_-_the_pirate_and_the_dancer"
+		write-host "Liscence of the music:"
+		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 3) {
 		if (($dis -eq 0 -or $p1Ship.Health[1] -gt 0 -or $p1Ship.Health[5] -gt 0 -or $p1Ship.Health[9] -gt 0) -and $Abandoned -ne 3) {
@@ -1376,6 +1390,13 @@ and the game continues."
 		write-host "$Name2 has sunk, $Name1 wins!"
 		write-host "final status"
 		DamageReport $dis $Oship $Dship
+		write-host ""
+		write-host "Credits:"
+		write-host "Music: 'The Pirate And The Dancer' by Rolemusic"
+		write-host "Source:"
+		write-host "http://freemusicarchive.org/music/Rolemusic/The_Pirate_And_The_Dancer/04_rolemusic_-_the_pirate_and_the_dancer"
+		write-host "Liscence of the music:"
+		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 4) {
 		if (($dis -eq 0 -or $p2Ship.Health[1] -gt 0 -or $p2Ship.Health[5] -gt 0 -or $p2Ship.Health[9] -gt 0) -and $Abandoned -ne 4) {
@@ -1399,6 +1420,13 @@ and the game continues."
 		write-host "$Name1 has sunk, $Name2 wins!"
 		write-host "final status"
 		DamageReport $dis $Oship $Dship
+		write-host ""
+		write-host "Credits:"
+		write-host "Music: 'The Pirate And The Dancer' by Rolemusic"
+		write-host "Source:"
+		write-host "http://freemusicarchive.org/music/Rolemusic/The_Pirate_And_The_Dancer/04_rolemusic_-_the_pirate_and_the_dancer"
+		write-host "Liscence of the music:"
+		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	}
 }
