@@ -34,7 +34,6 @@ $resurrectSfx = ".\sfx\resurrect.wav"
 $arrowSfx = ".\sfx\arrows.wav"
 # It's really in your best interest to just keep everything in its current place
 
-# space out dmg prints
 # stop telling the bot to print all its moves
 
 $tutorial = Read-Host -Prompt "Do you know how to play? [y]es or [n]o"
@@ -302,7 +301,6 @@ function checkStatus($mShip, $eShip, $dis, $wants, $abandoned) {
 		$wants[$i] = "flameS"
 		$i++
 	}
-	write-host $wants
 	return $wants
 }
 
@@ -716,21 +714,25 @@ function addDmg($Dship, $dmg, $zone, $os) {
 	if ($dmg[0] -ne 0) {
 		$d1 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[0] * $HitRate) / $state) -Maximum (($dmg[0] * (1+$HitRate)) / $state) )))
 		$health[0+$z] -= $d1
+		write-host ""
 		write-host "crew dmg: " $d1
 	}
 	if ($dmg[1] -ne 0) {
 		$d2 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[1] * $HitRate) / $state) -Maximum (($dmg[1] * (1+$HitRate)) / $state)) ))
 		$health[1+$z] -= $d2
+		write-host ""
 		write-host "boarder dmg: " $d2
 	}
 	if ($dmg[2] -ne 0) {
 		$d3 = ([math]::Floor( (Get-Random -Minimum (($dmg[2] * $HitRate) / $state) -Maximum (($dmg[2] * (1+$HitRate)) / $state)) ))
 		$health[2+$z] -= $d3
+		write-host ""
 		write-host "cannon dmg: " $d3
 	}
 	if ($dmg[3] -ne 0) {
 		$d4 = ([math]::Ceiling( (Get-Random -Minimum (($dmg[3] * $HitRate) / $state) -Maximum (($dmg[3] * (1+$HitRate)) / $state))) )
 		$health[3+$z] -= $d4
+		write-host ""
 		write-host "hull dmg: " $d4
 	}
 }
