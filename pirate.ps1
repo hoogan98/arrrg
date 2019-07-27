@@ -44,7 +44,7 @@ if ($tutorial -eq "n" -or $tutorial -eq "no") {
 	write-host "If you didn't look at the Readme, you should so you can actually run the game and see the UI."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "players take turns taking two different actions"
+	write-host "Players take turns taking two different actions"
 	write-host "To display the actions your ship can take type 'reference' when your turn comes around."
 	write-host "Players can also type 'help' to see information about what their particular ship can do."
 	write-host ""
@@ -414,15 +414,8 @@ function decide($ship, $Dship, $dis, $wants) {
 		if ($rand -gt 90) {
 			$str = $wants[$k]
 			if ($str -eq "") {
-				if ($ship.Health[1] -gt 0) {
-					$turns -= determineMove $ship 0
-				} elseif ($ship.Health[5] -gt 0) {
-					$turns -= determineMove $ship 1
-				} elseif ($ship.Health[9] -gt 0) {
-					$turns -= determineMove $ship 2
-				}
 				
-				if ($ship.State[0] -lt 0) {
+				if ($ship.State[0] -lt 0 -and $turns -eq 2) {
 					if ($ship.Health[0] -eq 0) {
 						$turns -= determineMove $ship 0
 					} else {
@@ -432,7 +425,7 @@ function decide($ship, $Dship, $dis, $wants) {
 						write-host "rob decides to repair on the Bow" 
 						start-sleep -seconds 2
 					}
-				} elseif ($ship.State[1] -lt 0) {
+				} elseif ($ship.State[1] -lt 0 -and $turns -eq 2) {
 					if ($ship.Health[4] -eq 0) {
 						$turns -= determineMove $ship 1
 					} else {
@@ -442,7 +435,7 @@ function decide($ship, $Dship, $dis, $wants) {
 						write-host "rob decides to repair on the Mid" 
 						start-sleep -seconds 2
 					}
-				} elseif ($ship.State[2] -lt 0) {
+				} elseif ($ship.State[2] -lt 0 -and $turns -eq 2) {
 					if ($ship.Health[8] -eq 0) {
 						$turns -= determineMove $ship 2
 					} else {
@@ -452,6 +445,14 @@ function decide($ship, $Dship, $dis, $wants) {
 						start-sleep -seconds 2
 						$turns--
 					}
+				}
+				
+				if ($ship.Health[1] -gt 0) {
+					$turns -= determineMove $ship 0
+				} elseif ($ship.Health[5] -gt 0) {
+					$turns -= determineMove $ship 1
+				} elseif ($ship.Health[9] -gt 0) {
+					$turns -= determineMove $ship 2
 				}
 				continue;
 			}
@@ -615,7 +616,7 @@ function decide($ship, $Dship, $dis, $wants) {
 			$dmg = 0,0,0,0
 			Start-Sleep -Seconds 2
 		}
-		if ($i -gt 1000) {
+		if ($i -gt 300) {
 			write-host "rob decides to wait for the rest of the turn"
 			
 			break;
@@ -964,6 +965,7 @@ and the game continues."
 		write-host "That's about it, have fun, and feel free to add / remove stuff from the program."
 		write-host ""
 		start-sleep -seconds 5
+		$tutorial = "y"
 	}
 	
 	if ($cpu2 -eq 1 -and $Oship.Name -eq "rob") {
@@ -1369,7 +1371,7 @@ and the game continues."
 		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 3) {
-		if (($dis -eq 0 -or $p1Ship.Health[1] -gt 0 -or $p1Ship.Health[5] -gt 0 -or $p1Ship.Health[9] -gt 0) -and $Abandoned -ne 3) {
+		if (($dis -eq 0 -or $p1Ship.Health[1] -gt 0 -or $p1Ship.Health[5] -gt 0 -or $p1Ship.Health[9] -gt 0) -and $Abandoned -ne 4) {
 			abandonShip $p2Ship $p1Ship $dis
 			$End = 0
 			$Abandoned = 3
@@ -1399,7 +1401,7 @@ and the game continues."
 		write-host "https://creativecommons.org/licenses/by/4.0/"
 		Start-Sleep -seconds 10
 	} elseif ($End -eq 4) {
-		if (($dis -eq 0 -or $p2Ship.Health[1] -gt 0 -or $p2Ship.Health[5] -gt 0 -or $p2Ship.Health[9] -gt 0) -and $Abandoned -ne 4) {
+		if (($dis -eq 0 -or $p2Ship.Health[1] -gt 0 -or $p2Ship.Health[5] -gt 0 -or $p2Ship.Health[9] -gt 0) -and $Abandoned -ne 3) {
 			abandonShip $p1Ship $p2Ship $dis
 			$End = 0
 			$Abandoned = 4
