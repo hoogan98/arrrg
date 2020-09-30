@@ -48,6 +48,6 @@ I promise it's fine.  If you're worried about that, after you're done you can ru
 > Set-Executionpolicy Restricted
 
 
-That puts the training wheels back on.
+That puts the security feature back on.
 
 
