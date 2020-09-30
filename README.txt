@@ -1,5 +1,5 @@
 ARRRG!
-My friend and I made this while bored at work. It's a two player pirate ship fight that runs on the command line because why not.
+It's a one or two player pirate ship fight that runs on the command line. I got the idea because the background of powershell looked blue and reminded me of the ocean. Naturally, that meant I had to attempt to make a pirate themed game exclusively in powershell script.
 
 --IMPORTANT--
 To play the game, right click 'pirate.ps1' and select 'run with powershell'
