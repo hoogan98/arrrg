@@ -41,7 +41,7 @@ if ($tutorial -eq "n" -or $tutorial -eq "no") {
 	write-host "This is a two-player turn-based game about pirate ships."
 	write-host ""
 	start-sleep -seconds 3
-	write-host "If you didn't look at the Readme, you should so you can actually run the game and see the UI."
+	write-host "If you didn't look at the Readme, please do. TL;DR is change the powershell font size to 12."
 	write-host ""
 	start-sleep -seconds 3
 	write-host "Players take turns taking two different actions"
@@ -960,6 +960,12 @@ and the game continues."
 		start-sleep -seconds 3
 		write-host "The player who goes first gets to choose the starting distance as their first action."
 		write-host "You can choose from 2 to 8, but once the game starts you can sail to distances from 0 to 10"
+		write-host ""
+		start-sleep -seconds 3
+  		write-host "Remember, on your turn you type in commands to take actions."
+		write-host "These actions will often ask for a zone to perform the action in."
+ 		write-host "The zones you can input are named 'bow', 'mid', and 'stern'."
+   		write-host "Also remember you can always input 'help' if you need a refresher on controls."
 		write-host ""
 		start-sleep -seconds 3
 		write-host "That's about it, have fun, and feel free to add / remove stuff from the program."
