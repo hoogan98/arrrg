@@ -6,6 +6,7 @@ To play the game, right click 'pirate.ps1' and select 'run with powershell'
 
 Powershell might ask if you want to change your execution policy, which essentially just allows our custom script to run.
 If you don't trust us you can always look at the included source code to see that this isn't a virus.
+More details on how to do this at the bottom.
 
 The first time you run the game, I highly reccomend you right click where it says "windows powershell" in the top
 left of the window, select properties, go to the 'font' tab, and bring the font size down.  I would advise changing the text window
@@ -36,7 +37,7 @@ The .ps1 scripts are just the raw source code for the game, you can look at them
 or add stuff for some reason.
 ALSO if you still can't play the game try running the following command in a new powershell window:
 
-> Set-Executionpolicy Unrestricted
+> Set-ExecutionPolicy -Scope CurrentUser Unrestricted
 
 Then to play the game, navigate to the folder it is in and type
 
@@ -45,7 +46,7 @@ Then to play the game, navigate to the folder it is in and type
 I promise it's fine.  If you're worried about that, after you're done you can run:
 
 
-> Set-Executionpolicy Restricted
+> Set-ExecutionPolicy -Scope CurrentUser Restricted
 
 
 That puts the security feature back on.
